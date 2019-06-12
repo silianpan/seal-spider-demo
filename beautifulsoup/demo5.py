@@ -19,6 +19,8 @@ html = """
 
 from bs4 import BeautifulSoup
 soup = BeautifulSoup(html, 'lxml')
+print(soup.p.contents)
+
 print(soup.p.children)
 for i, child in enumerate(soup.p.children):
     print(i, child)
