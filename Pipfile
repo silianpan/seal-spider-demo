@@ -10,6 +10,8 @@ requests = "*"
 lxml = "*"
 beautifulsoup4 = "*"
 pyquery = "*"
+pymysql = "*"
+selenium = "*"
 
 [requires]
 python_version = "3.7"

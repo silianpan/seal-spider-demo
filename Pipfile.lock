@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a0a40e6788996312dcb1fd3c01f0ec9807df94764566f71ca4b320cd97ad0cda"
+            "sha256": "abe82816859943ecf0a944a96c3f3d223a4d8491070c74c4a0c940df442bff9a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -83,6 +83,14 @@
             "index": "pypi",
             "version": "==4.3.4"
         },
+        "pymysql": {
+            "hashes": [
+                "sha256:3943fbbbc1e902f41daf7f9165519f140c4451c179380677e6a848587042561a",
+                "sha256:d8c059dcd81dedb85a9f034d5e22dcb4442c0b201908bede99e306d65ea7c8e7"
+            ],
+            "index": "pypi",
+            "version": "==0.9.3"
+        },
         "pyquery": {
             "hashes": [
                 "sha256:07987c2ed2aed5cba29ff18af95e56e9eb04a2249f42ce47bddfb37f487229a3",
@@ -98,6 +106,14 @@
             ],
             "index": "pypi",
             "version": "==2.22.0"
+        },
+        "selenium": {
+            "hashes": [
+                "sha256:2d7131d7bc5a5b99a2d9b04aaf2612c411b03b8ca1b1ee8d3de5845a9be2cb3c",
+                "sha256:deaf32b60ad91a4611b98d8002757f29e6f2c2d5fcaf202e1c9ad06d6772300d"
+            ],
+            "index": "pypi",
+            "version": "==3.141.0"
         },
         "soupsieve": {
             "hashes": [
