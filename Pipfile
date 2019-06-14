@@ -12,6 +12,8 @@ beautifulsoup4 = "*"
 pyquery = "*"
 pymysql = "*"
 selenium = "*"
+tesserocr = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.7"
