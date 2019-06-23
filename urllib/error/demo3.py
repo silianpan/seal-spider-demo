@@ -10,3 +10,5 @@ except error.URLError as e:
     print(e.reason)
 else:
     print('Request Successfully')
+finally:
+    print("Finally")

@@ -5,5 +5,6 @@ headers = {
 }
 
 r = requests.get('http://www.jianshu.com', headers=headers)
+print(requests.codes)
 print(r.status_code)
 exit() if not r.status_code == requests.codes.ok else print('Request Successfully')

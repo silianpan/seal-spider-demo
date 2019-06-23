@@ -1,6 +1,6 @@
-import urllib.parse
-import urllib.request
+from urllib.parse import urlencode
+from urllib.request import urlopen
 
-data = bytes(urllib.parse.urlencode({'word': 'hello'}), encoding='utf8')
-response = urllib.request.urlopen('http://httpbin.org/post', data=data)
+data = bytes(urlencode({'word': 'hello'}), encoding='utf8')
+response = urlopen('http://httpbin.org/post', data=data)
 print(response.read())
