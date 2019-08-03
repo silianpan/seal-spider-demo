@@ -10,7 +10,7 @@ import re
 import requests
 
 pattern_img = re.compile('<img.*?data-src="(.*?)".*?>', re.S)
-pattern_text = re.compile('<p.*?<a.*?data-act="boarditem-click".*?>(\S+?)</a></p>', re.S)
+pattern_text = re.compile('<p.*?<a.*?data-act="boarditem-click".*?>(.+?)</a></p>', re.S)
 pattern_text2 = re.compile('<p.*?class="star">(.*?)</p>', re.S)
 ret = requests.get('https://maoyan.com/board')
 

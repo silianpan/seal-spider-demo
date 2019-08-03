@@ -14,8 +14,8 @@ doc = pq(html)
 print(doc('#container .list li'))
 print(type(doc('#container .list li')))
 
-from pyquery import PyQuery as pq
-doc = pq(html)
+# from pyquery import PyQuery as pq
+# doc = pq(html)
 items = doc('.list')
 print(type(items))
 print(items)
