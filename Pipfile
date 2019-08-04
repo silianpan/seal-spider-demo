@@ -18,6 +18,7 @@ pyspider = "*"
 pymongo = "*"
 pycurl = "*"
 scrapy = "*"
+pytesseract = "*"
 
 [requires]
 python_version = "3.7"

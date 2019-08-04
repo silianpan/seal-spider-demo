@@ -1,7 +1,8 @@
 import tesserocr
+import pytesseract
 from PIL import Image
 
-image = Image.open('code2.jpg')
+image = Image.open('code4.png')
 
 image = image.convert('L')
 threshold = 127
@@ -15,5 +16,6 @@ for i in range(256):
 image = image.point(table, '1')
 image.show()
 
-result = tesserocr.image_to_text(image)
+# result = tesserocr.image_to_text(image)
+result = pytesseract.image_to_string(Image.open('code5.png'), lang='chi_sim')
 print(result)
