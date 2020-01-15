@@ -5,6 +5,7 @@
 
 from pyspider.libs.base_handler import *
 import re
+import pymysql
 
 # 正则表达式
 pattern_article = re.compile('^https://www.pkulaw.com/chl/\w{20}.html$')
@@ -150,4 +151,19 @@ class Handler(BaseHandler):
         ret['content'] = response.doc('.content > .fulltext').html()
 
         # 保存mysql
+        if u'现行有效' in ret['time_valid'] or u'尚未生效' in ret['time_valid']:
+            self.save_to_mysql(ret)
         return ret
+
+    # 保存到mysql
+    def save_to_mysql(self, params):
+        db = pymysql.connect(host='localhost', user='root', password='Asdf@123', port=3306, db='pkulaw')
+        cursor = db.cursor()
+        sql = 'INSERT INTO law(title, pub_dept, pub_no, pub_date, law_type, force_level, time_valid, impl_date, content, url, type, deadline) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+        try:
+            cursor.execute(sql, params)
+            db.commit()
+        except:
+            db.rollback()
+        cursor.close()
+        db.close()
