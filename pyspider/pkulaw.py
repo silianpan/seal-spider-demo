@@ -149,6 +149,10 @@ class Handler(BaseHandler):
         ret['url'] = response.url
         ret['title'] = title.text()
         ret['content'] = response.doc('.content > .fulltext').html()
+        if 'deadline' not in ret:
+            ret['deadline'] = ''
+        if 'type' not in ret:
+            ret['type'] = ''
 
         # 保存mysql
         if u'现行有效' in ret['time_valid'] or u'尚未生效' in ret['time_valid']:
@@ -160,10 +164,14 @@ class Handler(BaseHandler):
         db = pymysql.connect(host='localhost', user='root', password='Asdf@123', port=3306, db='pkulaw')
         cursor = db.cursor()
         sql = 'INSERT INTO law(title, pub_dept, pub_no, pub_date, law_type, force_level, time_valid, impl_date, content, url, type, deadline) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-        try:
-            cursor.execute(sql, params)
-            db.commit()
-        except:
-            db.rollback()
+        # try:
+        #     cursor.execute(sql, params)
+        #     db.commit()
+        # except:
+        #     db.rollback()
+        if 'pub_no' not in params:
+            params['pub_no'] = ''
+        cursor.execute(sql, params)
+        db.commit()
         cursor.close()
         db.close()
