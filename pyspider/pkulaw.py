@@ -42,7 +42,7 @@ class Handler(BaseHandler):
             'ShowType': 'Default',
             'Pager.PageIndex': 0,
             'RecordShowType': 'List',
-            'Pager.PageSize': 10,
+            'Pager.PageSize': 100,
             'isEng': 'chinese',
             'X-Requested-With': 'XMLHttpRequest'
         }, callback=self.index_page)
@@ -73,7 +73,7 @@ class Handler(BaseHandler):
                         'ShowType': 'Default',
                         'Pager.PageIndex': page_index,
                         'RecordShowType': 'List',
-                        'Pager.PageSize': 10,
+                        'Pager.PageSize': 100,
                         'isEng': 'chinese',
                         'X-Requested-With': 'XMLHttpRequest',
                         'OldPageIndex': page_index - 1
