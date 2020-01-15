@@ -147,16 +147,19 @@ class Handler(BaseHandler):
                     ret['deadline'] = cont
 
         ret['url'] = response.url
-        ret['title'] = title.text()
-        ret['content'] = response.doc('.content > .fulltext').html()
-        if 'deadline' not in ret:
-            ret['deadline'] = ''
-        if 'type' not in ret:
-            ret['type'] = ''
+        ret['title'] = title.text().strip()
+        ret['content'] = response.doc('.content > .fulltext').html().strip()
 
         # 保存mysql
         if u'现行有效' in ret['time_valid'] or u'尚未生效' in ret['time_valid']:
-            self.save_to_mysql(ret)
+            if 'deadline' not in ret:
+                ret['deadline'] = ''
+            if 'type' not in ret:
+                ret['type'] = ''
+            if 'pub_no' not in ret:
+                ret['pub_no'] = ''
+            self.save_to_mysql((ret['title'], ret['pub_dept'], ret['pub_no'], ret['pub_date'], ret['law_type'], ret['force_level'],
+                                ret['time_valid'], ret['impl_date'], ret['content'], ret['url'], ret['type'], ret['deadline']))
         return ret
 
     # 保存到mysql
@@ -169,8 +172,6 @@ class Handler(BaseHandler):
         #     db.commit()
         # except:
         #     db.rollback()
-        if 'pub_no' not in params:
-            params['pub_no'] = ''
         cursor.execute(sql, params)
         db.commit()
         cursor.close()
