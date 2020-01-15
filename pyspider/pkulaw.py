@@ -9,6 +9,7 @@ import re
 # 正则表达式
 pattern_article = re.compile('^https://www.pkulaw.com/chl/\w{20}.html$')
 
+
 class Handler(BaseHandler):
     crawl_config = {
         'headers': {
@@ -92,15 +93,60 @@ class Handler(BaseHandler):
         # 详细处理
         title = response.doc('.content > .title')
         title.children().remove()
-        fields = response.doc('.content > .fields > ul')
-        return {
-            "url": response.url,
-            "title": title.text(),
-            "pub_dept": fields('li:first-child > span').attr('title'),
-            "pub_no": fields('li:nth-child(2)').attr('title'),
-            "pub_date": fields('li:nth-child(3)').attr('title'),
-            "impl_date": fields('li:nth-child(4)').attr('title'),
-            "now_valid": fields('li:nth-child(5) > span').attr('title'),
-            "level": fields('li:nth-child(6) > span').attr('title'),
-            "type": fields('li:last-child > span').attr('title')
-        }
+        li_list = response.doc('.content > .fields > ul > li').items()
+        ret = {}
+        for li in li_list:
+            strong = li('strong').text()
+            if strong is not None:
+                if u'发布部门' in strong.strip():
+                    cont = li('span').attr('title')
+                    if cont is not None and len(cont.strip()) != 0:
+                        ret['pub_dept'] = cont
+                    else:
+                        ret['pub_dept'] = li.attr('title')
+                elif u'发文字号' in strong.strip():
+                    ret['pub_no'] = li.attr('title')
+                elif u'发布日期' in strong.strip():
+                    # cont = li.attr('title')
+                    # if cont is None or len(cont.strip()) == 0:
+                    #     li.children().remove()
+                    #     cont = li.text()
+                    ret['pub_date'] = li.attr('title')
+                elif u'实施日期' in strong.strip():
+                    # cont = li.attr('title')
+                    # if cont is None or len(cont.strip()) == 0:
+                    #     li.children().remove()
+                    #     cont = li.text()
+                    ret['impl_date'] = li.attr('title')
+                elif u'时效性' in strong.strip():
+                    cont = li('span').attr('title')
+                    if cont is not None and len(cont.strip()) != 0:
+                        ret['time_valid'] = cont
+                    else:
+                        ret['time_valid'] = li.attr('title')
+                elif u'效力级别' in strong.strip():
+                    ret['force_level'] = li('span').attr('title')
+                    # if cont is not None and len(cont.strip()) != 0:
+                    #     ret['force_level'] = cont
+                    # else:
+                    #     ret['force_level'] = li.attr('title')
+                elif u'法规类别' in strong.strip():
+                    ret['law_type'] = li('span').attr('title')
+                    # if cont is not None and len(cont.strip()) != 0:
+                    #     ret['law_type'] = cont
+                    # else:
+                    #     ret['law_type'] = li.attr('title')
+                elif u'类别' in strong.strip():
+                    ret['type'] = li('a').text()
+                elif u'截止日期' in strong.strip():
+                    li.children().remove()
+                    cont = li.text()
+                    # if cont is None or len(cont.strip()) == 0:
+                    #     cont = li.attr('title')
+                    ret['deadline'] = cont
+
+        ret['url'] = response.url
+        ret['title'] = title.text()
+
+        # 保存mysql
+        return ret
