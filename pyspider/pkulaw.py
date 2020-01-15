@@ -147,6 +147,7 @@ class Handler(BaseHandler):
 
         ret['url'] = response.url
         ret['title'] = title.text()
+        ret['content'] = response.doc('.content > .fulltext').html()
 
         # 保存mysql
         return ret
