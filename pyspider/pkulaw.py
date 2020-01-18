@@ -55,37 +55,37 @@ class Handler(BaseHandler):
         pages = response.doc('ul.pagination-sm > li.disabled > label').text()
         if pages is not None and len(pages.strip()) != 0 and '/' in pages:
             pages_list = pages.split('/')
-            if len(pages_list) == 2:
-                tmp = pages_list[0]
-                tmp_list = tmp.split(' ')
-                # 当前页
-                current_index = int(tmp_list[1]) + 1
-                # 总页数
-                page_size = int(pages_list[1])
-                if 1 < current_index <= page_size:
-                    # 回调index_page
-                    self.crawl('https://www.pkulaw.com/law/search/RecordSearch', method='POST', data={
-                        'Menu': 'law',
-                        'SearchKeywordType': 'DefaultSearch',
-                        'MatchType': 'Exact',
-                        'RangeType': 'Piece',
-                        'Library': 'chl',
-                        'ClassFlag': 'chl',
-                        'QueryOnClick': 'False',
-                        'AfterSearch': 'False',
-                        'IsSynonymSearch': 'true',
-                        'IsAdv': 'False',
-                        'ClassCodeKey': ',XA01,,,,',
-                        'GroupByIndex': 0,
-                        'OrderByIndex': 0,
-                        'ShowType': 'Default',
-                        'Pager.PageIndex': current_index - 1,
-                        'RecordShowType': 'List',
-                        'Pager.PageSize': 100,
-                        'isEng': 'chinese',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'OldPageIndex': current_index - 2
-                    }, callback=self.index_page)
+            # if len(pages_list) == 2:
+            tmp = pages_list[0]
+            tmp_list = tmp.split(' ')
+            # 当前页
+            current_index = int(tmp_list[1]) + 1
+            # 总页数
+            page_size = int(pages_list[1])
+            if 1 < current_index <= page_size:
+                # 回调index_page
+                self.crawl('https://www.pkulaw.com/law/search/RecordSearch', method='POST', data={
+                    'Menu': 'law',
+                    'SearchKeywordType': 'DefaultSearch',
+                    'MatchType': 'Exact',
+                    'RangeType': 'Piece',
+                    'Library': 'chl',
+                    'ClassFlag': 'chl',
+                    'QueryOnClick': 'False',
+                    'AfterSearch': 'False',
+                    'IsSynonymSearch': 'true',
+                    'IsAdv': 'False',
+                    'ClassCodeKey': ',XA01,,,,',
+                    'GroupByIndex': 0,
+                    'OrderByIndex': 0,
+                    'ShowType': 'Default',
+                    'Pager.PageIndex': current_index - 1,
+                    'RecordShowType': 'List',
+                    'Pager.PageSize': 100,
+                    'isEng': 'chinese',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'OldPageIndex': current_index - 2
+                }, callback=self.index_page)
         # 逐条处理
         self.item_page(response)
 
