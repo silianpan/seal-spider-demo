@@ -55,12 +55,9 @@ class Handler(BaseHandler):
         pages = response.doc('ul.pagination-sm > li.disabled > label').text()
         if pages is not None and len(pages.strip()) != 0 and '/' in pages:
             pages_list = pages.split('/')
-            # if len(pages_list) == 2:
             tmp = pages_list[0]
             tmp_list = tmp.split(' ')
-            # 当前页
             current_index = int(tmp_list[1]) + 1
-            # 总页数
             page_size = int(pages_list[1])
             if 1 < current_index <= page_size:
                 # 回调index_page
