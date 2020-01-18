@@ -51,13 +51,18 @@ class Handler(BaseHandler):
 
     @config(age=5 * 24 * 60 * 60)
     def index_page(self, response):
-        # 后续分页处理
         pages = response.doc('ul.pagination-sm > li.disabled > label').text()
         if pages is not None and len(pages.strip()) != 0 and '/' in pages:
             pages_list = pages.split('/')
             if len(pages_list) == 2:
-                page_size = pages_list[1]
-                for page_index in range(1, int(page_size)):
+                tmp = pages_list[0]
+                tmp_list = tmp.split(' ')
+                # 当前页
+                current_index = int(tmp_list[1]) + 1
+                # 总页数
+                page_size = int(pages_list[1])
+                if 1 < current_index <= page_size:
+                    # 回调index_page
                     self.crawl('https://www.pkulaw.com/law/search/RecordSearch', method='POST', data={
                         'Menu': 'law',
                         'SearchKeywordType': 'DefaultSearch',
@@ -73,14 +78,14 @@ class Handler(BaseHandler):
                         'GroupByIndex': 0,
                         'OrderByIndex': 0,
                         'ShowType': 'Default',
-                        'Pager.PageIndex': page_index,
+                        'Pager.PageIndex': current_index - 1,
                         'RecordShowType': 'List',
                         'Pager.PageSize': 100,
                         'isEng': 'chinese',
                         'X-Requested-With': 'XMLHttpRequest',
-                        'OldPageIndex': page_index - 1
-                    }, callback=self.item_page)
-        # 第一页处理
+                        'OldPageIndex': current_index - 2
+                    }, callback=self.index_page)
+        # 逐条处理
         self.item_page(response)
 
     @config(priority=2)
@@ -158,8 +163,9 @@ class Handler(BaseHandler):
                 ret['type'] = ''
             if 'pub_no' not in ret:
                 ret['pub_no'] = ''
-            self.save_to_mysql((ret['title'], ret['pub_dept'], ret['pub_no'], ret['pub_date'], ret['law_type'], ret['force_level'],
-                                ret['time_valid'], ret['impl_date'], ret['content'], ret['url'], ret['type'], ret['deadline']))
+            self.save_to_mysql(
+                (ret['title'], ret['pub_dept'], ret['pub_no'], ret['pub_date'], ret['law_type'], ret['force_level'],
+                 ret['time_valid'], ret['impl_date'], ret['content'], ret['url'], ret['type'], ret['deadline']))
         return ret
 
     # 保存到mysql
