@@ -3,9 +3,10 @@
 # Created on 2020-01-14 15:19:11
 # Project: pkulaw
 
-from pyspider.libs.base_handler import *
 import re
+
 import pymysql
+from pyspider.libs.base_handler import *
 
 # 正则表达式
 pattern_article = re.compile('^https://www.pkulaw.com/chl/\w{20}.html$')
