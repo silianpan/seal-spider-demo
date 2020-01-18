@@ -171,12 +171,12 @@ class Handler(BaseHandler):
         db = pymysql.connect(host='localhost', user='root', password='Asdf@123', port=3306, db='pkulaw')
         cursor = db.cursor()
         sql = 'INSERT INTO law(title, pub_dept, pub_no, pub_date, law_type, force_level, time_valid, impl_date, content, url, type, deadline) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
-        # try:
-        #     cursor.execute(sql, params)
-        #     db.commit()
-        # except:
-        #     db.rollback()
-        cursor.execute(sql, params)
-        db.commit()
+        try:
+            cursor.execute(sql, params)
+            db.commit()
+        except:
+            db.rollback()
+        # cursor.execute(sql, params)
+        # db.commit()
         cursor.close()
         db.close()
