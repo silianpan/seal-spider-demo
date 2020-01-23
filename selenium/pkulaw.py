@@ -42,13 +42,13 @@ class CrackGeetest():
         button = self.wait.until(EC.element_to_be_clickable((By.CLASS_NAME, 'geetest_radar_tip')))
         return button
 
-    def get_position(self):
+    def get_position(self, img_id='bgImg'):
         """
         获取验证码位置
         :return: 验证码位置元组
         """
         # img = self.wait.until(EC.presence_of_element_located((By.XPATH, '//div[id="Verification"]/div[id="bgImg"]')))
-        img = self.wait.until(EC.presence_of_element_located((By.ID, 'bgImg')))
+        img = self.wait.until(EC.presence_of_element_located((By.ID, img_id)))
         time.sleep(2)
         location = img.location
         size = img.size
@@ -73,12 +73,12 @@ class CrackGeetest():
         slider = self.wait.until(EC.element_to_be_clickable((By.CLASS_NAME, 'handler_bg')))
         return slider
 
-    def get_geetest_image(self, name='captcha.png'):
+    def get_geetest_image(self, name='captcha.png', img_id='bgImg'):
         """
         获取验证码图片
         :return: 图片对象
         """
-        top, bottom, left, right = self.get_position()
+        top, bottom, left, right = self.get_position(img_id)
         print('验证码位置', top, bottom, left, right)
         screenshot = self.get_screenshot()
         captcha = screenshot.crop((left, top, right, bottom))
@@ -222,7 +222,7 @@ class CrackGeetest():
         slider = self.get_slider()
         slider.click()
         # 获取带缺口的验证码图片
-        image2 = self.get_geetest_image('captcha2.png')
+        image2 = self.get_geetest_image('captcha2.png', 'xy_img')
         # 获取缺口位置
         gap = self.get_gap(image1, image2)
         print('缺口位置', gap)

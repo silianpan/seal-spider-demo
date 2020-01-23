@@ -19,6 +19,7 @@ pymongo = "*"
 pycurl = "*"
 scrapy = "*"
 pytesseract = "*"
+opencv-python = "*"
 
 [requires]
 python_version = "3.7"
