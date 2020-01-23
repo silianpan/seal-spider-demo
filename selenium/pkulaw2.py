@@ -229,6 +229,7 @@ class Login(object):
         top, bottom, left, right = self.get_position_crop(img_id)
         print('验证码位置', top, bottom, left, right)
         screenshot = self.get_screenshot()
+        screenshot.save(name + '2.png')
         captcha = screenshot.crop((left, top, right, bottom))
         captcha.save(name)
         return captcha
@@ -253,9 +254,8 @@ class Login(object):
         # self.webdriverwait_click(driver, login_button)
         # time.sleep(1)
 
-        layui_dialog = driver.find_element_by_class_name('layui-layer-dialog')
-        print(layui_dialog)
-        driver.switch_to.active_element  # switch 到 滑块激活元素
+        # layui_dialog = driver.find_element_by_class_name('layui-layer-dialog')
+        # driver.switch_to.active_element  # switch 到 滑块激活元素
         time.sleep(0.5)
         bk_block = driver.find_element_by_xpath('//div[@id="bgImg"]')  # 大图
         web_image_width = bk_block.size
