@@ -172,6 +172,7 @@ class Login(object):
         """
         # 点击法律更多
         self.driver.maximize_window()
+        # self.driver.set_window_size(1366, 768)
         self.driver.get(self.url)
         # email = self.wait.until(EC.presence_of_element_located((By.ID, 'email')))
         # password = self.wait.until(EC.presence_of_element_located((By.ID, 'password')))
@@ -219,6 +220,7 @@ class Login(object):
         """
         screenshot = self.driver.get_screenshot_as_png()
         screenshot = Image.open(BytesIO(screenshot))
+        # screenshot.resize((1366, 768))
         return screenshot
 
     def get_geetest_image(self, name='captcha.png', img_id='bgImg'):
