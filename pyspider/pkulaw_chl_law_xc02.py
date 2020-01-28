@@ -25,7 +25,8 @@ class Handler(BaseHandler):
             'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            'Connection': 'keep-alive'
         },
         'cookies': {
             'isCheck': 'ValidateSuccess_126',
