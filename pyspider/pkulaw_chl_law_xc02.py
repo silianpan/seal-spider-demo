@@ -7,17 +7,19 @@ import re
 import uuid
 
 import pymysql
+from fake_useragent import UserAgent
 from pyspider.libs.base_handler import *
 
 # 正则表达式
 pattern_article = re.compile(u'^http://www.pkulaw.cn/fulltext_form.aspx\?.+$')
 pattern_page = re.compile(u'^.*第\s+(\d+)\s+.*共\s+(\d+)\s+.*$')
+fake_ua = UserAgent()
 
 
 class Handler(BaseHandler):
     crawl_config = {
         'headers': {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
+            'User-Agent': fake_ua.random,
             'Origin': 'http://www.pkulaw.cn',
             'Referer': 'http://www.pkulaw.cn/cluster_form.aspx?Db=chl&menu_item=law&EncodingName=&keyword=&range=name&',
             'Host': 'www.pkulaw.cn',
@@ -31,12 +33,12 @@ class Handler(BaseHandler):
         'cookies': {
             'isCheck': 'ValidateSuccess_126',
             'codeCompare': 'OK_126'
-        },
-        'proxy': '60.205.132.71:80'
+        }
     }
 
     @every(minutes=10 * 24 * 60)
     def on_start(self):
+        ua = UserAgent()
         # 第一页请求抓取
         self.crawl('http://www.pkulaw.cn/doSearch.ashx?_=1', method='POST', data={
             'Db': 'chl',
@@ -44,7 +46,7 @@ class Handler(BaseHandler):
             'clust_db': 'chl',
             'range': 'name',
             'menu_item': 'law'
-        }, callback=self.index_page)
+        }, callback=self.index_page, user_agent=ua.random)
 
     @config(age=5 * 24 * 60 * 60)
     def index_page(self, response):
@@ -55,7 +57,8 @@ class Handler(BaseHandler):
             page_size = int(pages_ret.group(2))
             if 1 <= current_index <= page_size:
                 # 回调index_page
-                self.crawl('http://www.pkulaw.cn/doSearch.ashx?_='+str(uuid.uuid4()), method='POST', data={
+                ua = UserAgent()
+                self.crawl('http://www.pkulaw.cn/doSearch.ashx?_=' + str(uuid.uuid4()), method='POST', data={
                     'range': 'name',
                     'Db': 'chl',
                     'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXC02',
@@ -63,7 +66,7 @@ class Handler(BaseHandler):
                     'page_count': page_size,
                     'clust_db': 'chl',
                     'menu_item': 'law'
-                }, callback=self.index_page)
+                }, callback=self.index_page, user_agent=ua.random)
         # 逐条处理
         self.item_page(response)
 
@@ -71,7 +74,8 @@ class Handler(BaseHandler):
     def item_page(self, response):
         for each in response.doc('a[href^="http"]').items():
             if each.attr['class'] == 'main-ljwenzi' and re.match(pattern_article, each.attr.href):
-                self.crawl(each.attr.href, callback=self.detail_page)
+                ua = UserAgent()
+                self.crawl(each.attr.href, callback=self.detail_page, user_agent=ua.random)
 
     @config(priority=3)
     def detail_page(self, response):
@@ -114,7 +118,9 @@ class Handler(BaseHandler):
 
         # 保存mysql
         if (u'现行有效' in ret['time_valid'] or u'尚未生效' in ret['time_valid']) and (u'任免' not in ret['force_level'] and
-            u'工作文件' not in ret['force_level'] and u'工作答复' not in ret['force_level']):
+                                                                               u'工作文件' not in ret[
+                                                                                   'force_level'] and u'工作答复' not in
+                                                                               ret['force_level']):
             if 'deadline' not in ret:
                 ret['deadline'] = ''
             if 'type' not in ret:

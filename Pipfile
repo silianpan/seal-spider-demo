@@ -20,6 +20,7 @@ pycurl = "*"
 scrapy = "*"
 pytesseract = "*"
 opencv-python = "*"
+fake-useragent = "*"
 
 [requires]
 python_version = "3.7"
