@@ -8,15 +8,21 @@ import re
 import pymysql
 from pyspider.libs.base_handler import *
 
+# 开始url
+start_url = 'http://www.pkulaw.cn/cluster_form.aspx?Db=chl&menu_item=law&EncodingName=&keyword=&range=name&'
+
 # 正则表达式
-pattern_article = re.compile('^https://www.pkulaw.com/chl/\w{20}.html$')
+pattern_article = re.compile('^http://www.pkulaw.cn/fulltext_form.aspx\?.+$')
+pattern_page = re.compile(u'^.*第\s+(\d+)\s+.*共\s+(\d+)\s+.*$')
 
 
 class Handler(BaseHandler):
     crawl_config = {
         'headers': {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36',
-            'Referer': 'https://www.pkulaw.com/',
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
+            'Origin': 'http://www.pkulaw.cn',
+            'Referer': 'http://www.pkulaw.cn/cluster_form.aspx?Db=chl&menu_item=law&EncodingName=&keyword=&range=name&',
+            'Host': 'www.pkulaw.cn',
             'Accept': '*/*',
             'Accept-Encoding': 'gzip, deflate, br',
             'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7',
@@ -28,130 +34,83 @@ class Handler(BaseHandler):
     @every(minutes=10 * 24 * 60)
     def on_start(self):
         # 第一页请求抓取
-        self.crawl('https://www.pkulaw.com/law/search/RecordSearch', method='POST', data={
-            'Menu': 'law',
-            'SearchKeywordType': 'DefaultSearch',
-            'MatchType': 'Exact',
-            'RangeType': 'Piece',
-            'Library': 'chl',
-            'ClassFlag': 'chl',
-            'QueryOnClick': 'False',
-            'AfterSearch': 'False',
-            'IsSynonymSearch': 'true',
-            'IsAdv': 'False',
-            'ClassCodeKey': ',XA01,,,,',
-            'GroupByIndex': 0,
-            'OrderByIndex': 0,
-            'ShowType': 'Default',
-            'Pager.PageIndex': 0,
-            'RecordShowType': 'List',
-            'Pager.PageSize': 100,
-            'isEng': 'chinese',
-            'X-Requested-With': 'XMLHttpRequest'
+        self.crawl('http://www.pkulaw.cn/doSearch.ashx', method='POST', data={
+            'Db': 'chl',
+            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01',
+            'clust_db': 'chl',
+            'range': 'name',
+            'menu_item': 'law'
         }, callback=self.index_page)
 
     @config(age=5 * 24 * 60 * 60)
     def index_page(self, response):
-        pages = response.doc('ul.pagination-sm > li.disabled > label').text()
-        if pages is not None and len(pages.strip()) != 0 and '/' in pages:
-            pages_list = pages.split('/')
-            tmp = pages_list[0]
-            tmp_list = tmp.split(' ')
-            current_index = int(tmp_list[1]) + 1
-            page_size = int(pages_list[1])
+        pages = response.doc('.main-top4-1 > table > tr:first-child > td > span').text()
+        pages_ret = re.match(pattern_page, pages)
+        if pages_ret:
+            current_index = int(pages_ret.group(1))
+            page_size = int(pages_ret.group(2))
             if 1 < current_index <= page_size:
                 # 回调index_page
-                self.crawl('https://www.pkulaw.com/law/search/RecordSearch', method='POST', data={
-                    'Menu': 'law',
-                    'SearchKeywordType': 'DefaultSearch',
-                    'MatchType': 'Exact',
-                    'RangeType': 'Piece',
-                    'Library': 'chl',
-                    'ClassFlag': 'chl',
-                    'QueryOnClick': 'False',
-                    'AfterSearch': 'False',
-                    'IsSynonymSearch': 'true',
-                    'IsAdv': 'False',
-                    'ClassCodeKey': ',XA01,,,,',
-                    'GroupByIndex': 0,
-                    'OrderByIndex': 0,
-                    'ShowType': 'Default',
-                    'Pager.PageIndex': current_index - 1,
-                    'RecordShowType': 'List',
-                    'Pager.PageSize': 100,
-                    'isEng': 'chinese',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'OldPageIndex': current_index - 2
+                self.crawl('http://www.pkulaw.cn/doSearch.ashx', method='POST', data={
+                    'range': 'name',
+                    'check_hide_xljb': 1,
+                    'Db': 'chl',
+                    'check_gaojijs': 1,
+                    'orderby': '%E5%8F%91%E5%B8%83%E6%97%A5%E6%9C%9F',
+                    'hidtrsWhere': '377EF8C056C62113E3510356CD866D062CD82F4BD0A1F26B',
+                    'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01',
+                    'aim_page': current_index - 1,
+                    'page_count': page_size,
+                    'clust_db': 'chl',
+                    'menu_item': 'law'
                 }, callback=self.index_page)
         # 逐条处理
         self.item_page(response)
 
     @config(priority=2)
     def item_page(self, response):
-        for each in response.doc('a[href^="http"]').items():
+        for each in response.doc('a[href^="http" and class="main-ljwenzi"]').items():
             if re.match(pattern_article, each.attr.href):
                 self.crawl(each.attr.href, callback=self.detail_page)
 
     @config(priority=3)
     def detail_page(self, response):
         # 详细处理
-        title = response.doc('.content > .title')
-        title.children().remove()
-        li_list = response.doc('.content > .fields > ul > li').items()
+        title = response.doc('table#tbl_content_main > tbody > tr:first-child > td > span > strong')
+        li_list = response.doc('table#tbl_content_main > tbody > tr').items()
         ret = {}
         for li in li_list:
-            strong = li('strong').text()
-            if strong is not None:
-                if u'发布部门' in strong.strip():
-                    cont = li('span').attr('title')
-                    if cont is not None and len(cont.strip()) != 0:
-                        ret['pub_dept'] = cont
-                    else:
-                        ret['pub_dept'] = li.attr('title')
-                elif u'发文字号' in strong.strip():
-                    ret['pub_no'] = li.attr('title')
-                elif u'发布日期' in strong.strip():
-                    # cont = li.attr('title')
-                    # if cont is None or len(cont.strip()) == 0:
-                    #     li.children().remove()
-                    #     cont = li.text()
-                    ret['pub_date'] = li.attr('title')
-                elif u'实施日期' in strong.strip():
-                    # cont = li.attr('title')
-                    # if cont is None or len(cont.strip()) == 0:
-                    #     li.children().remove()
-                    #     cont = li.text()
-                    ret['impl_date'] = li.attr('title')
-                elif u'时效性' in strong.strip():
-                    cont = li('span').attr('title')
-                    if cont is not None and len(cont.strip()) != 0:
-                        ret['time_valid'] = cont
-                    else:
-                        ret['time_valid'] = li.attr('title')
-                elif u'效力级别' in strong.strip():
-                    ret['force_level'] = li('span').attr('title')
-                    # if cont is not None and len(cont.strip()) != 0:
-                    #     ret['force_level'] = cont
-                    # else:
-                    #     ret['force_level'] = li.attr('title')
-                elif u'法规类别' in strong.strip():
-                    ret['law_type'] = li('span').attr('title')
-                    # if cont is not None and len(cont.strip()) != 0:
-                    #     ret['law_type'] = cont
-                    # else:
-                    #     ret['law_type'] = li.attr('title')
-                elif u'类别' in strong.strip():
-                    ret['type'] = li('a').text()
-                elif u'截止日期' in strong.strip():
-                    li.children().remove()
-                    cont = li.text()
-                    # if cont is None or len(cont.strip()) == 0:
-                    #     cont = li.attr('title')
-                    ret['deadline'] = cont
+            td_list = li('td').items()
+            for td in td_list:
+                strong = td('font').text()
+                if strong is not None:
+                    strong = strong.strip()
+                    if u'发布部门' in strong:
+                        ret['pub_dept'] = td('a').text().strip()
+                    elif u'发文字号' in strong:
+                        td.children().remove()
+                        ret['pub_no'] = td.text().strip()
+                    elif u'发布日期' in strong:
+                        td.children().remove()
+                        ret['pub_date'] = td.text().strip()
+                    elif u'实施日期' in strong:
+                        td.children().remove()
+                        ret['impl_date'] = td.text().strip()
+                    elif u'时效性' in strong:
+                        ret['time_valid'] = td('a').text().strip()
+                    elif u'效力级别' in strong:
+                        ret['force_level'] = td('a').text().strip()
+                    elif u'法规类别' in strong:
+                        ret['law_type'] = td('a').text().strip()
+                    elif u'类别' in strong:
+                        ret['type'] = td('a').text().strip()
+                    elif u'截止日期' in strong.strip():
+                        td.children().remove()
+                        ret['deadline'] = td.text().strip()
 
         ret['url'] = response.url
         ret['title'] = title.text().strip()
-        ret['content'] = response.doc('.content > .fulltext').html().strip()
+        ret['content'] = response.doc('.Content > #div_content').html().strip()
 
         # 保存mysql
         if u'现行有效' in ret['time_valid'] or u'尚未生效' in ret['time_valid']:
