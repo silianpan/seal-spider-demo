@@ -9,7 +9,7 @@ import pymysql
 from pyspider.libs.base_handler import *
 
 # 正则表达式
-pattern_article = re.compile('^http://www.pkulaw.cn/fulltext_form.aspx\?.+$')
+pattern_article = re.compile(u'^http://www.pkulaw.cn/fulltext_form.aspx\?.+$')
 pattern_page = re.compile(u'^.*第\s+(\d+)\s+.*共\s+(\d+)\s+.*$')
 
 
@@ -66,15 +66,15 @@ class Handler(BaseHandler):
 
     @config(priority=2)
     def item_page(self, response):
-        for each in response.doc('a[href^="http" and class="main-ljwenzi"]').items():
-            if re.match(pattern_article, each.attr.href):
+        for each in response.doc('a[href^="http"]').items():
+            if each.attr['class'] == 'main-ljwenzi' and re.match(pattern_article, each.attr.href):
                 self.crawl(each.attr.href, callback=self.detail_page)
 
     @config(priority=3)
     def detail_page(self, response):
         # 详细处理
-        title = response.doc('table#tbl_content_main > tbody > tr:first-child > td > span > strong')
-        li_list = response.doc('table#tbl_content_main > tbody > tr').items()
+        title = response.doc('table#tbl_content_main > tr:first-child > td > span > strong')
+        li_list = response.doc('table#tbl_content_main > tr').items()
         ret = {}
         for li in li_list:
             td_list = li('td').items()
