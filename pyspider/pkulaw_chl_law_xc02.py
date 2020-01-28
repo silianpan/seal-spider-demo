@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 # Created on 2020-01-14 15:19:11
-# Project: pkulaw_chl_law
+# Project: pkulaw_chl_law_xc02 中央法规-行政法规
 
 import re
 import uuid
@@ -38,7 +38,7 @@ class Handler(BaseHandler):
         # 第一页请求抓取
         self.crawl('http://www.pkulaw.cn/doSearch.ashx?_=1', method='POST', data={
             'Db': 'chl',
-            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01',
+            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXC02',
             'clust_db': 'chl',
             'range': 'name',
             'menu_item': 'law'
@@ -59,8 +59,8 @@ class Handler(BaseHandler):
                     'Db': 'chl',
                     'check_gaojijs': 1,
                     'orderby': '%E5%8F%91%E5%B8%83%E6%97%A5%E6%9C%9F',
-                    'hidtrsWhere': '377EF8C056C62113E3510356CD866D062CD82F4BD0A1F26B',
-                    'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01',
+                    'hidtrsWhere': '377EF8C056C621134FB3B8C2F520A66751E70D74A6607102',
+                    'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXC02',
                     'aim_page': current_index,
                     'page_count': page_size,
                     'clust_db': 'chl',
