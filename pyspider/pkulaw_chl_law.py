@@ -36,7 +36,7 @@ class Handler(BaseHandler):
     @every(minutes=10 * 24 * 60)
     def on_start(self):
         # 第一页请求抓取
-        self.crawl('http://www.pkulaw.cn/doSearch.ashx', method='POST', data={
+        self.crawl('http://www.pkulaw.cn/doSearch.ashx?_=1', method='POST', data={
             'Db': 'chl',
             'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01',
             'clust_db': 'chl',
