@@ -30,7 +30,8 @@ class Handler(BaseHandler):
         'cookies': {
             'isCheck': 'ValidateSuccess_126',
             'codeCompare': 'OK_126'
-        }
+        },
+        'proxy': '60.205.132.71:80'
     }
 
     @every(minutes=10 * 24 * 60)
@@ -55,11 +56,7 @@ class Handler(BaseHandler):
                 # 回调index_page
                 self.crawl('http://www.pkulaw.cn/doSearch.ashx?_='+str(uuid.uuid4()), method='POST', data={
                     'range': 'name',
-                    'check_hide_xljb': 1,
                     'Db': 'chl',
-                    'check_gaojijs': 1,
-                    'orderby': '%E5%8F%91%E5%B8%83%E6%97%A5%E6%9C%9F',
-                    'hidtrsWhere': '377EF8C056C621134FB3B8C2F520A66751E70D74A6607102',
                     'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXC02',
                     'aim_page': current_index,
                     'page_count': page_size,
