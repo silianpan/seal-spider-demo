@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 # Created on 2020-01-14 15:19:11
-# Project: pkulaw
+# Project: pkulaw_chl_law
 
 import re
 
