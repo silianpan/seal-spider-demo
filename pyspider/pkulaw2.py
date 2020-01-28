@@ -48,9 +48,9 @@ class Handler(BaseHandler):
         pages = response.doc('.main-top4-1 > table > tr:first-child > td > span').text()
         pages_ret = re.match(pattern_page, pages)
         if pages_ret:
-            current_index = int(pages_ret.group(1)) + 1
+            current_index = int(pages_ret.group(1))
             page_size = int(pages_ret.group(2))
-            if 1 < current_index <= page_size:
+            if 1 <= current_index <= page_size:
                 # 回调index_page
                 self.crawl('http://www.pkulaw.cn/doSearch.ashx', method='POST', data={
                     'range': 'name',
