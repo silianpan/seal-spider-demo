@@ -8,9 +8,6 @@ import re
 import pymysql
 from pyspider.libs.base_handler import *
 
-# 开始url
-start_url = 'http://www.pkulaw.cn/cluster_form.aspx?Db=chl&menu_item=law&EncodingName=&keyword=&range=name&'
-
 # 正则表达式
 pattern_article = re.compile('^http://www.pkulaw.cn/fulltext_form.aspx\?.+$')
 pattern_page = re.compile(u'^.*第\s+(\d+)\s+.*共\s+(\d+)\s+.*$')
