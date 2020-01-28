@@ -4,6 +4,7 @@
 # Project: pkulaw_chl_law
 
 import re
+import uuid
 
 import pymysql
 from pyspider.libs.base_handler import *
@@ -52,7 +53,7 @@ class Handler(BaseHandler):
             page_size = int(pages_ret.group(2))
             if 1 <= current_index <= page_size:
                 # 回调index_page
-                self.crawl('http://www.pkulaw.cn/doSearch.ashx', method='POST', data={
+                self.crawl('http://www.pkulaw.cn/doSearch.ashx?_='+str(uuid.uuid4()), method='POST', data={
                     'range': 'name',
                     'check_hide_xljb': 1,
                     'Db': 'chl',
