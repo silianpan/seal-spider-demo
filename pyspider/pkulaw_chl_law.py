@@ -114,7 +114,8 @@ class Handler(BaseHandler):
         ret['content'] = response.doc('.Content > #div_content').html().strip()
 
         # 保存mysql
-        if u'现行有效' in ret['time_valid'] or u'尚未生效' in ret['time_valid']:
+        if (u'现行有效' in ret['time_valid'] or u'尚未生效' in ret['time_valid']) and (u'任免' not in ret['force_level'] and
+            u'工作文件' not in ret['force_level'] and u'工作答复' not in ret['force_level']):
             if 'deadline' not in ret:
                 ret['deadline'] = ''
             if 'type' not in ret:
