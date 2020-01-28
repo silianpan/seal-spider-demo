@@ -25,6 +25,10 @@ class Handler(BaseHandler):
             'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'X-Requested-With': 'XMLHttpRequest'
+        },
+        'cookies': {
+            'isCheck': 'ValidateSuccess_126',
+            'codeCompare': 'OK_126'
         }
     }
 
@@ -44,7 +48,7 @@ class Handler(BaseHandler):
         pages = response.doc('.main-top4-1 > table > tr:first-child > td > span').text()
         pages_ret = re.match(pattern_page, pages)
         if pages_ret:
-            current_index = int(pages_ret.group(1))
+            current_index = int(pages_ret.group(1)) + 1
             page_size = int(pages_ret.group(2))
             if 1 < current_index <= page_size:
                 # 回调index_page
@@ -56,7 +60,7 @@ class Handler(BaseHandler):
                     'orderby': '%E5%8F%91%E5%B8%83%E6%97%A5%E6%9C%9F',
                     'hidtrsWhere': '377EF8C056C62113E3510356CD866D062CD82F4BD0A1F26B',
                     'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01',
-                    'aim_page': current_index - 1,
+                    'aim_page': current_index,
                     'page_count': page_size,
                     'clust_db': 'chl',
                     'menu_item': 'law'
