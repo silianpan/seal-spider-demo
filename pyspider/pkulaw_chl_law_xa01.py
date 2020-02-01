@@ -5,6 +5,7 @@
 
 import re
 import uuid
+import requests
 
 import pymysql
 from fake_useragent import UserAgent
@@ -15,13 +16,21 @@ pattern_article = re.compile(u'^http://www.pkulaw.cn/fulltext_form.aspx\?.+$')
 pattern_page = re.compile(u'^.*第\s+(\d+)\s+.*共\s+(\d+)\s+.*$')
 fake_ua = UserAgent()
 
+# 超时设置
+connect_timeout = 200
+# 请求参数设置
+clusterwhere = '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01'
+db = 'chl'
+menu_item = 'law'
+referer = 'http://www.pkulaw.cn/cluster_form.aspx?Db=chl&menu_item=law&EncodingName=&keyword=&range=name&'
+
 
 class Handler(BaseHandler):
     crawl_config = {
         'headers': {
             'User-Agent': fake_ua.random,
             'Origin': 'http://www.pkulaw.cn',
-            'Referer': 'http://www.pkulaw.cn/cluster_form.aspx?Db=chl&menu_item=law&EncodingName=&keyword=&range=name&',
+            'Referer': referer,
             'Host': 'www.pkulaw.cn',
             'Accept': '*/*',
             'Accept-Encoding': 'gzip, deflate, br',
@@ -32,23 +41,50 @@ class Handler(BaseHandler):
         'cookies': {
             'isCheck': 'ValidateSuccess_126',
             'codeCompare': 'OK_126'
-        }
+        },
+        'connect_timeout': connect_timeout
     }
+
+    def __init__(self):
+        self.custom_proxy = self.get_proxy().get('proxy')
+
+    def get_proxy(self):
+        return requests.get("http://127.0.0.1:5010/get/").json()
+
+    def delete_proxy(self, proxy):
+        requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
+
+    def new_proxy(self, response, limiting=False):
+        '''
+        :param response: 请求返回
+        :param limiting: 是否限流
+        :return:
+        '''
+        # 如果抓取不成功
+        if not response.ok or limiting:
+            # 当前代理不为空
+            if self.custom_proxy is not None:
+                self.delete_proxy(self.custom_proxy)
+            self.custom_proxy = self.get_proxy().get('proxy')
+            return True
+        return False
 
     @every(minutes=10 * 24 * 60)
     def on_start(self):
         ua = UserAgent()
         # 第一页请求抓取
-        self.crawl('http://www.pkulaw.cn/doSearch.ashx?_=1', method='POST', data={
-            'Db': 'chl',
-            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01',
-            'clust_db': 'chl',
+        self.crawl('http://www.pkulaw.cn/doSearch.ashx?_=4', method='POST', data={
+            'Db': db,
+            'clusterwhere': clusterwhere,
+            'clust_db': db,
             'range': 'name',
-            'menu_item': 'law'
-        }, callback=self.index_page, user_agent=ua.random)
+            'menu_item': menu_item
+        }, callback=self.index_page, user_agent=ua.random, proxy=self.custom_proxy, connect_timeout=connect_timeout)
 
     @config(age=5 * 24 * 60 * 60)
     def index_page(self, response):
+        # 检查代理
+        self.new_proxy(response)
         pages = response.doc('.main-top4-1 > table > tr:first-child > td > span').text()
         pages_ret = re.match(pattern_page, pages)
         if pages_ret:
@@ -59,29 +95,29 @@ class Handler(BaseHandler):
                 ua = UserAgent()
                 self.crawl('http://www.pkulaw.cn/doSearch.ashx?_='+str(uuid.uuid4()), method='POST', data={
                     'range': 'name',
-                    'check_hide_xljb': 1,
-                    'Db': 'chl',
-                    'check_gaojijs': 1,
-                    'orderby': '%E5%8F%91%E5%B8%83%E6%97%A5%E6%9C%9F',
-                    'hidtrsWhere': '377EF8C056C62113E3510356CD866D062CD82F4BD0A1F26B',
-                    'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01',
+                    'Db': db,
+                    'clusterwhere': clusterwhere,
                     'aim_page': current_index,
                     'page_count': page_size,
-                    'clust_db': 'chl',
-                    'menu_item': 'law'
-                }, callback=self.index_page, user_agent=ua.random)
+                    'clust_db': db,
+                    'menu_item': menu_item
+                }, callback=self.index_page, user_agent=ua.random, proxy=self.custom_proxy, connect_timeout=connect_timeout)
         # 逐条处理
         self.item_page(response)
 
     @config(priority=2)
     def item_page(self, response):
+        # 检查代理
+        self.new_proxy(response)
         for each in response.doc('a[href^="http"]').items():
             if each.attr['class'] == 'main-ljwenzi' and re.match(pattern_article, each.attr.href):
                 ua = UserAgent()
-                self.crawl(each.attr.href, callback=self.detail_page, user_agent=ua.random)
+                self.crawl(each.attr.href, callback=self.detail_page, user_agent=ua.random, proxy=self.custom_proxy, connect_timeout=connect_timeout)
 
     @config(priority=3)
     def detail_page(self, response):
+        # 检查代理
+        self.new_proxy(response)
         # 详细处理
         title = response.doc('table#tbl_content_main > tr:first-child > td > span > strong')
         li_list = response.doc('table#tbl_content_main > tr').items()
@@ -117,7 +153,13 @@ class Handler(BaseHandler):
 
         ret['url'] = response.url
         ret['title'] = title.text().strip()
-        ret['content'] = response.doc('.Content > #div_content').html().strip()
+        main_content = response.doc('.Content > #div_content').html()
+        if main_content is None:
+            # 检查代理，内容为空，做了限流
+            self.new_proxy(response, True)
+            # 没有文章内容，直接返回
+            return ret
+        ret['content'] = main_content.strip()
 
         # 保存mysql
         if (u'现行有效' in ret['time_valid'] or u'尚未生效' in ret['time_valid']) and (u'任免' not in ret['force_level'] and

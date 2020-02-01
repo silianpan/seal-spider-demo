@@ -15,13 +15,21 @@ pattern_article = re.compile(u'^http://www.pkulaw.cn/fulltext_form.aspx\?.+$')
 pattern_page = re.compile(u'^.*第\s+(\d+)\s+.*共\s+(\d+)\s+.*$')
 fake_ua = UserAgent()
 
+# 超时设置
+connect_timeout = 200
+# 请求参数设置
+clusterwhere = '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXC02'
+db = 'chl'
+menu_item = 'law'
+referer = 'http://www.pkulaw.cn/cluster_form.aspx?Db=chl&menu_item=law&EncodingName=&keyword=&range=name&'
+
 
 class Handler(BaseHandler):
     crawl_config = {
         'headers': {
             'User-Agent': fake_ua.random,
             'Origin': 'http://www.pkulaw.cn',
-            'Referer': 'http://www.pkulaw.cn/cluster_form.aspx?Db=chl&menu_item=law&EncodingName=&keyword=&range=name&',
+            'Referer': referer,
             'Host': 'www.pkulaw.cn',
             'Accept': '*/*',
             'Accept-Encoding': 'gzip, deflate, br',
@@ -41,11 +49,11 @@ class Handler(BaseHandler):
         ua = UserAgent()
         # 第一页请求抓取
         self.crawl('http://www.pkulaw.cn/doSearch.ashx?_=1', method='POST', data={
-            'Db': 'chl',
-            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXC02',
-            'clust_db': 'chl',
+            'Db': db,
+            'clusterwhere': clusterwhere,
+            'clust_db': db,
             'range': 'name',
-            'menu_item': 'law'
+            'menu_item': menu_item
         }, callback=self.index_page, user_agent=ua.random)
 
     @config(age=5 * 24 * 60 * 60)
@@ -60,12 +68,12 @@ class Handler(BaseHandler):
                 ua = UserAgent()
                 self.crawl('http://www.pkulaw.cn/doSearch.ashx?_=' + str(uuid.uuid4()), method='POST', data={
                     'range': 'name',
-                    'Db': 'chl',
-                    'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXC02',
+                    'Db': db,
+                    'clusterwhere': clusterwhere,
                     'aim_page': current_index,
                     'page_count': page_size,
-                    'clust_db': 'chl',
-                    'menu_item': 'law'
+                    'clust_db': db,
+                    'menu_item': menu_item
                 }, callback=self.index_page, user_agent=ua.random)
         # 逐条处理
         self.item_page(response)
