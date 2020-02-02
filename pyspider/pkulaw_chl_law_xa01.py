@@ -64,7 +64,7 @@ class Handler(BaseHandler):
         :param limiting: 是否限流
         :return:
         '''
-        # 如果抓取不成功
+        # 如果抓取不成功，或者限流（内容为空）
         if not response.ok or limiting:
             # 当前代理不为空
             if self.custom_proxy is not None:
