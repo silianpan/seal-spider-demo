@@ -17,9 +17,9 @@ pattern_page = re.compile(u'^.*第\s+(\d+)\s+.*共\s+(\d+)\s+.*$')
 fake_ua = UserAgent()
 
 # 超时设置
-connect_timeout = 100
+connect_timeout = 10
 retries = 15
-timeout = 600
+timeout = 60
 # 请求参数设置
 clusterwhere = '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01'
 db = 'chl'
@@ -50,23 +50,25 @@ class Handler(BaseHandler):
     }
 
     def get_proxy(self):
-        return requests.get("http://127.0.0.1:5010/get/").json()
+        # return requests.get("http://127.0.0.1:5010/get/").json()
+        ret = requests.get('http://http.tiqu.alicdns.com/getip3?num=1&type=2&pro=&city=0&yys=0&port=1&pack=81985&ts=0&ys=0&cs=0&lb=1&sb=0&pb=4&mr=1&regions=&gm=4').json()
+        return ret.get('data')[0].get('ip')+':'+str(ret.get('data')[0].get('port'))
 
-    def delete_proxy(self, proxy):
-        requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
+    # def delete_proxy(self, proxy):
+    #     requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
 
-    def new_proxy(self, response):
-        # 如果抓取不成功
-        if not response.ok:
-            self.delete_proxy(response.save['proxy'])
-            return self.get_proxy().get('proxy')
-        # 返回旧代理
-        return response.save['proxy']
+    # def new_proxy(self, response):
+    #     # 如果抓取不成功
+    #     if not response.ok:
+    #         self.delete_proxy(response.save['proxy'])
+    #         return self.get_proxy().get('proxy')
+    #     # 返回旧代理
+    #     return response.save['proxy']
 
     @every(minutes=10 * 24 * 60)
     def on_start(self):
         ua = UserAgent()
-        custom_proxy = self.get_proxy().get('proxy')
+        custom_proxy = self.get_proxy()
         # 第一页请求抓取
         self.crawl('http://www.pkulaw.cn/doSearch.ashx?_=4', method='POST', data={
             'Db': db,
@@ -79,7 +81,7 @@ class Handler(BaseHandler):
     @catch_status_code_error
     @config(age=5 * 24 * 60 * 60)
     def index_page(self, response):
-        custom_proxy = self.new_proxy(response)
+        custom_proxy = response.save['proxy']
         pages = response.doc('.main-top4-1 > table > tr:first-child > td > span').text()
         pages_ret = re.match(pattern_page, pages)
         if pages_ret:
