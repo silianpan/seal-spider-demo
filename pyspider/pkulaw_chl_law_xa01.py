@@ -58,30 +58,39 @@ class Handler(BaseHandler):
     def delete_proxy(self, proxy):
         requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
 
-    def new_proxy(self):
-        # 当前代理不为空
-        if self.custom_proxy is not None:
-            self.delete_proxy(self.custom_proxy)
-        self.custom_proxy = self.get_proxy().get('proxy')
-        return True
+    def new_proxy(self, response, limiting=False):
+        '''
+        :param response: 请求返回
+        :param limiting: 是否限流
+        :return:
+        '''
+        # 如果抓取不成功
+        if not response.ok or limiting:
+            # 当前代理不为空
+            if self.custom_proxy is not None:
+                self.delete_proxy(self.custom_proxy)
+            self.custom_proxy = self.get_proxy().get('proxy')
+            return True
+        return False
 
     @every(minutes=10 * 24 * 60)
     def on_start(self):
         ua = UserAgent()
         # 第一页请求抓取
-        try:
-            self.crawl('http://www.pkulaw.cn/doSearch.ashx?_=4', method='POST', data={
-                'Db': db,
-                'clusterwhere': clusterwhere,
-                'clust_db': db,
-                'range': 'name',
-                'menu_item': menu_item
-            }, callback=self.index_page, user_agent=ua.random, proxy=self.custom_proxy, connect_timeout=connect_timeout)
-        except Exception:
-            self.new_proxy()
+        self.crawl('http://www.pkulaw.cn/doSearch.ashx?_=4', method='POST', data={
+            'Db': db,
+            'clusterwhere': clusterwhere,
+            'clust_db': db,
+            'range': 'name',
+            'menu_item': menu_item
+        }, callback=self.index_page, user_agent=ua.random, proxy=self.custom_proxy, connect_timeout=connect_timeout)
 
+    @catch_status_code_error
     @config(age=5 * 24 * 60 * 60)
     def index_page(self, response):
+        # 检查更新代理
+        if self.new_proxy(response):
+            return
         pages = response.doc('.main-top4-1 > table > tr:first-child > td > span').text()
         pages_ret = re.match(pattern_page, pages)
         if pages_ret:
@@ -90,18 +99,15 @@ class Handler(BaseHandler):
             if 1 <= current_index <= page_size:
                 # 回调index_page
                 ua = UserAgent()
-                try:
-                    self.crawl('http://www.pkulaw.cn/doSearch.ashx?_='+str(uuid.uuid4()), method='POST', data={
-                        'range': 'name',
-                        'Db': db,
-                        'clusterwhere': clusterwhere,
-                        'aim_page': current_index,
-                        'page_count': page_size,
-                        'clust_db': db,
-                        'menu_item': menu_item
-                    }, callback=self.index_page, user_agent=ua.random, proxy=self.custom_proxy, connect_timeout=connect_timeout)
-                except Exception:
-                    self.new_proxy()
+                self.crawl('http://www.pkulaw.cn/doSearch.ashx?_='+str(uuid.uuid4()), method='POST', data={
+                    'range': 'name',
+                    'Db': db,
+                    'clusterwhere': clusterwhere,
+                    'aim_page': current_index,
+                    'page_count': page_size,
+                    'clust_db': db,
+                    'menu_item': menu_item
+                }, callback=self.index_page, user_agent=ua.random, proxy=self.custom_proxy, connect_timeout=connect_timeout)
         # 逐条处理
         self.item_page(response)
 
@@ -110,13 +116,14 @@ class Handler(BaseHandler):
         for each in response.doc('a[href^="http"]').items():
             if each.attr['class'] == 'main-ljwenzi' and re.match(pattern_article, each.attr.href):
                 ua = UserAgent()
-                try:
-                    self.crawl(each.attr.href, callback=self.detail_page, user_agent=ua.random, proxy=self.custom_proxy, connect_timeout=connect_timeout)
-                except Exception:
-                    self.new_proxy()
+                self.crawl(each.attr.href, callback=self.detail_page, user_agent=ua.random, proxy=self.custom_proxy, connect_timeout=connect_timeout)
 
+    @catch_status_code_error
     @config(priority=3)
     def detail_page(self, response):
+        # 检查更新代理
+        if self.new_proxy(response):
+            return
         # 详细处理
         title = response.doc('table#tbl_content_main > tr:first-child > td > span > strong')
         li_list = response.doc('table#tbl_content_main > tr').items()
@@ -155,7 +162,7 @@ class Handler(BaseHandler):
         main_content = response.doc('.Content > #div_content').html()
         if main_content is None:
             # 更新代理
-            self.new_proxy()
+            self.new_proxy(response, True)
             # 没有文章内容，直接返回
             return ret
         ret['content'] = main_content.strip()
