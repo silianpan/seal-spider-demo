@@ -43,16 +43,12 @@ class Handler(BaseHandler):
         }
     }
 
-    def __init__(self):
-        self.custom_proxy = None
-
     def get_proxy(self):
         ret = requests.get('http://http.tiqu.alicdns.com/getip3?num=1&type=2&pro=&city=0&yys=0&port=1&pack=81985&ts=0&ys=0&cs=0&lb=1&sb=0&pb=4&mr=1&regions=&gm=4').json()
         return ret.get('data')[0].get('ip')+':'+str(ret.get('data')[0].get('port'))
 
     @every(minutes=10 * 24 * 60)
     def on_start(self):
-        self.custom_proxy = self.get_proxy()
         ua = UserAgent()
         # 第一页请求抓取
         self.crawl('http://www.pkulaw.cn/doSearch.ashx?_=1', method='POST', data={
@@ -61,7 +57,7 @@ class Handler(BaseHandler):
             'clust_db': db,
             'range': 'name',
             'menu_item': menu_item
-        }, callback=self.index_page, user_agent=ua.random, proxy=self.custom_proxy)
+        }, callback=self.index_page, user_agent=ua.random, proxy=self.get_proxy())
 
     @config(age=5 * 24 * 60 * 60)
     def index_page(self, response):
@@ -81,7 +77,7 @@ class Handler(BaseHandler):
                     'page_count': page_size,
                     'clust_db': db,
                     'menu_item': menu_item
-                }, callback=self.index_page, user_agent=ua.random, proxy=self.custom_proxy)
+                }, callback=self.index_page, user_agent=ua.random, proxy=self.get_proxy())
         # 逐条处理
         self.item_page(response)
 
@@ -90,7 +86,7 @@ class Handler(BaseHandler):
         for each in response.doc('a[href^="http"]').items():
             if each.attr['class'] == 'main-ljwenzi' and re.match(pattern_article, each.attr.href):
                 ua = UserAgent()
-                self.crawl(each.attr.href, callback=self.detail_page, user_agent=ua.random, proxy=self.custom_proxy)
+                self.crawl(each.attr.href, callback=self.detail_page, user_agent=ua.random, proxy=self.get_proxy())
 
     @config(priority=3)
     def detail_page(self, response):
@@ -157,7 +153,5 @@ class Handler(BaseHandler):
             db.commit()
         except:
             db.rollback()
-        # cursor.execute(sql, params)
-        # db.commit()
         cursor.close()
         db.close()
