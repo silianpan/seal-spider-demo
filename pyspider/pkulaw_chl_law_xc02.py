@@ -5,6 +5,7 @@
 
 import re
 import uuid
+import requests
 
 import pymysql
 from fake_useragent import UserAgent
@@ -15,8 +16,6 @@ pattern_article = re.compile(u'^http://www.pkulaw.cn/fulltext_form.aspx\?.+$')
 pattern_page = re.compile(u'^.*第\s+(\d+)\s+.*共\s+(\d+)\s+.*$')
 fake_ua = UserAgent()
 
-# 超时设置
-connect_timeout = 200
 # 请求参数设置
 clusterwhere = '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXC02'
 db = 'chl'
@@ -44,8 +43,16 @@ class Handler(BaseHandler):
         }
     }
 
+    def __init__(self):
+        self.custom_proxy = None
+
+    def get_proxy(self):
+        ret = requests.get('http://http.tiqu.alicdns.com/getip3?num=1&type=2&pro=&city=0&yys=0&port=1&pack=81985&ts=0&ys=0&cs=0&lb=1&sb=0&pb=4&mr=1&regions=&gm=4').json()
+        return ret.get('data')[0].get('ip')+':'+str(ret.get('data')[0].get('port'))
+
     @every(minutes=10 * 24 * 60)
     def on_start(self):
+        self.custom_proxy = self.get_proxy()
         ua = UserAgent()
         # 第一页请求抓取
         self.crawl('http://www.pkulaw.cn/doSearch.ashx?_=1', method='POST', data={
@@ -54,7 +61,7 @@ class Handler(BaseHandler):
             'clust_db': db,
             'range': 'name',
             'menu_item': menu_item
-        }, callback=self.index_page, user_agent=ua.random)
+        }, callback=self.index_page, user_agent=ua.random, proxy=self.custom_proxy)
 
     @config(age=5 * 24 * 60 * 60)
     def index_page(self, response):
@@ -74,7 +81,7 @@ class Handler(BaseHandler):
                     'page_count': page_size,
                     'clust_db': db,
                     'menu_item': menu_item
-                }, callback=self.index_page, user_agent=ua.random)
+                }, callback=self.index_page, user_agent=ua.random, proxy=self.custom_proxy)
         # 逐条处理
         self.item_page(response)
 
@@ -83,7 +90,7 @@ class Handler(BaseHandler):
         for each in response.doc('a[href^="http"]').items():
             if each.attr['class'] == 'main-ljwenzi' and re.match(pattern_article, each.attr.href):
                 ua = UserAgent()
-                self.crawl(each.attr.href, callback=self.detail_page, user_agent=ua.random)
+                self.crawl(each.attr.href, callback=self.detail_page, user_agent=ua.random, proxy=self.custom_proxy)
 
     @config(priority=3)
     def detail_page(self, response):

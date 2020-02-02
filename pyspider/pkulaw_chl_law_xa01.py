@@ -17,9 +17,9 @@ pattern_page = re.compile(u'^.*第\s+(\d+)\s+.*共\s+(\d+)\s+.*$')
 fake_ua = UserAgent()
 
 # 超时设置
-connect_timeout = 10
-retries = 15
-timeout = 60
+connect_timeout = 20
+retries = 3
+timeout = 120
 # 请求参数设置
 clusterwhere = '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01'
 db = 'chl'
@@ -78,7 +78,6 @@ class Handler(BaseHandler):
             'menu_item': menu_item
         }, callback=self.index_page, user_agent=ua.random, proxy=custom_proxy, save={'proxy': custom_proxy}, connect_timeout=connect_timeout)
 
-    @catch_status_code_error
     @config(age=5 * 24 * 60 * 60)
     def index_page(self, response):
         custom_proxy = response.save['proxy']
@@ -109,7 +108,6 @@ class Handler(BaseHandler):
                 ua = UserAgent()
                 self.crawl(each.attr.href, callback=self.detail_page, user_agent=ua.random, proxy=custom_proxy, save={'proxy': custom_proxy}, connect_timeout=connect_timeout)
 
-    @catch_status_code_error
     @config(priority=3)
     def detail_page(self, response):
         # 详细处理
