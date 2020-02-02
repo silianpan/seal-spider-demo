@@ -17,9 +17,9 @@ pattern_page = re.compile(u'^.*第\s+(\d+)\s+.*共\s+(\d+)\s+.*$')
 fake_ua = UserAgent()
 
 # 超时设置
-connect_timeout = 100
+connect_timeout = 20
 retries = 15
-timeout = 600
+timeout = 120
 # 请求参数设置
 clusterwhere = '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01'
 db = 'chl'
@@ -191,7 +191,5 @@ class Handler(BaseHandler):
             db.commit()
         except:
             db.rollback()
-        # cursor.execute(sql, params)
-        # db.commit()
         cursor.close()
         db.close()
