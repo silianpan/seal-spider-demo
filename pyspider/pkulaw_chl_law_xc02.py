@@ -47,7 +47,7 @@ class Handler(BaseHandler):
         ret = requests.get('http://http.tiqu.alicdns.com/getip3?num=1&type=2&pro=&city=0&yys=0&port=1&pack=81985&ts=0&ys=0&cs=0&lb=1&sb=0&pb=4&mr=1&regions=&gm=4').json()
         return ret.get('data')[0].get('ip')+':'+str(ret.get('data')[0].get('port'))
 
-    @every(minutes=10 * 24 * 60)
+    @every(minutes=24 * 60)
     def on_start(self):
         ua = UserAgent()
         # 第一页请求抓取
@@ -59,8 +59,9 @@ class Handler(BaseHandler):
             'menu_item': menu_item
         }, callback=self.index_page, user_agent=ua.random, proxy=self.get_proxy())
 
-    @config(age=5 * 24 * 60 * 60)
+    @config(age=10 * 24 * 60 * 60)
     def index_page(self, response):
+        proxy = self.get_proxy()
         pages = response.doc('.main-top4-1 > table > tr:first-child > td > span').text()
         pages_ret = re.match(pattern_page, pages)
         if pages_ret:
@@ -77,20 +78,19 @@ class Handler(BaseHandler):
                     'page_count': page_size,
                     'clust_db': db,
                     'menu_item': menu_item
-                }, callback=self.index_page, user_agent=ua.random, proxy=self.get_proxy())
+                }, callback=self.index_page, user_agent=ua.random, proxy=proxy)
         # 逐条处理
         self.item_page(response)
 
-    @config(priority=2)
     def item_page(self, response):
+        proxy = self.get_proxy()
         for each in response.doc('a[href^="http"]').items():
             if each.attr['class'] == 'main-ljwenzi' and re.match(pattern_article, each.attr.href):
                 ua = UserAgent()
-                self.crawl(each.attr.href, callback=self.detail_page, user_agent=ua.random, proxy=self.get_proxy())
+                self.crawl(each.attr.href, callback=self.detail_page, user_agent=ua.random, proxy=proxy)
 
-    @config(priority=3)
+    @config(priority=2)
     def detail_page(self, response):
-        # 详细处理
         title = response.doc('table#tbl_content_main > tr:first-child > td > span > strong')
         li_list = response.doc('table#tbl_content_main > tr').items()
         ret = {}

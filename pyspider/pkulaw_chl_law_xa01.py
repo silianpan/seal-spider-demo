@@ -65,10 +65,10 @@ class Handler(BaseHandler):
     #     # 返回旧代理
     #     return response.save['proxy']
 
-    @every(minutes=10 * 24 * 60)
+    @every(minutes=24 * 60)
     def on_start(self):
-        ua = UserAgent()
         custom_proxy = self.get_proxy()
+        ua = UserAgent()
         # 第一页请求抓取
         self.crawl('http://www.pkulaw.cn/doSearch.ashx?_=4', method='POST', data={
             'Db': db,
@@ -80,7 +80,8 @@ class Handler(BaseHandler):
 
     @config(age=5 * 24 * 60 * 60)
     def index_page(self, response):
-        custom_proxy = response.save['proxy']
+        # custom_proxy = response.save['proxy']
+        custom_proxy = self.get_proxy()
         pages = response.doc('.main-top4-1 > table > tr:first-child > td > span').text()
         pages_ret = re.match(pattern_page, pages)
         if pages_ret:
@@ -99,18 +100,17 @@ class Handler(BaseHandler):
                     'menu_item': menu_item
                 }, callback=self.index_page, user_agent=ua.random, proxy=custom_proxy, save={'proxy': custom_proxy}, connect_timeout=connect_timeout)
         # 逐条处理
-        self.item_page(response, custom_proxy)
+        self.item_page(response)
 
-    @config(priority=2)
-    def item_page(self, response, custom_proxy):
+    def item_page(self, response):
+        custom_proxy = self.get_proxy()
         for each in response.doc('a[href^="http"]').items():
             if each.attr['class'] == 'main-ljwenzi' and re.match(pattern_article, each.attr.href):
                 ua = UserAgent()
                 self.crawl(each.attr.href, callback=self.detail_page, user_agent=ua.random, proxy=custom_proxy, save={'proxy': custom_proxy}, connect_timeout=connect_timeout)
 
-    @config(priority=3)
+    @config(priority=2)
     def detail_page(self, response):
-        # 详细处理
         title = response.doc('table#tbl_content_main > tr:first-child > td > span > strong')
         li_list = response.doc('table#tbl_content_main > tr').items()
         ret = {}
