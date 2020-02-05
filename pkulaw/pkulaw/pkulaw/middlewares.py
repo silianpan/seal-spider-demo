@@ -163,10 +163,3 @@ class RandomUserAgentMiddleware(object):
         ua = self.user_agent.random
         self.logger.debug('======' + '使用User-Agent ' + str(ua) + "======")
         request.headers.setdefault('User-Agent', ua)
-
-    def process_response(self, request, response, spider):
-        if response.status != 200:
-            self.logger.debug('======重新获取User-Agent======')
-            request.headers.setdefault('User-Agent', self.user_agent.random)
-            return request
-        return response
