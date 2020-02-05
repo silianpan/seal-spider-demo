@@ -22,13 +22,15 @@ start_url = 'http://www.pkulaw.cn/doSearch.ashx'
 
 clusterwhere = '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01'
 db = 'chl'
+clust_db = 'chl'
 menu_item = 'law'
+Search_Mode = 'accurate'
 referer = 'http://www.pkulaw.cn/cluster_form.aspx?Db=chl&menu_item=law&EncodingName=&keyword=&range=name&'
 
 formdata = {
     'Db': db,
     'clusterwhere': clusterwhere,
-    'clust_db': db,
+    'clust_db': clust_db,
     'range': 'name',
     'menu_item': menu_item
 }
@@ -82,7 +84,7 @@ class ChlLawXa01(scrapy.Spider):
                     'clusterwhere': clusterwhere,
                     'aim_page': str(current_index),
                     'page_count': str(page_size),
-                    'clust_db': db,
+                    'clust_db': clust_db,
                     'menu_item': menu_item
                 }
                 yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=cookies,
