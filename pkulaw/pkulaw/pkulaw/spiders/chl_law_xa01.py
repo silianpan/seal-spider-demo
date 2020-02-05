@@ -14,7 +14,6 @@
 import re
 
 import scrapy
-from fake_useragent import UserAgent
 
 clusterwhere = '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01'
 db = 'chl'
@@ -42,9 +41,7 @@ class ChlLawXa01(scrapy.Spider):
             'range': 'name',
             'menu_item': menu_item
         }
-        # fake_ua = UserAgent()
         headers = {
-            # 'User-Agent': fake_ua.random,
             'Origin': 'http://www.pkulaw.cn',
             'Referer': referer,
             'Host': 'www.pkulaw.cn',

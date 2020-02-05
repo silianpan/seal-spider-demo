@@ -10,7 +10,6 @@ import logging
 import requests
 from fake_useragent import UserAgent
 from scrapy import signals
-from scrapy.downloadermiddlewares.useragent import UserAgentMiddleware
 
 
 class PkulawSpiderMiddleware(object):
@@ -150,14 +149,11 @@ class ProxyMiddleware(object):
         return response
 
 
-class RotateUserAgentMiddleware(UserAgentMiddleware):
-    def __init__(self, user_agent=''):
+class RandomUserAgentMiddleware(object):
+    def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.user_agent = user_agent
+        self.user_agent = UserAgent().random
 
     def process_request(self, request, spider):
-        fake_ua = UserAgent()
-        ua = fake_ua.random
-        if ua:
-            self.logger.debug('======' + '使用User-Agent ' + str(ua) + "======")
-            request.headers.setdefault('User-Agent', ua)
+        self.logger.debug('======' + '使用User-Agent ' + str(self.user_agent) + "======")
+        request.headers.setdefault('User-Agent', self.user_agent)
