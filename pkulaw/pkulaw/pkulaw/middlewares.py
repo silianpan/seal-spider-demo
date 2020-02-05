@@ -5,6 +5,7 @@
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+import re
 import logging
 
 import requests
@@ -123,6 +124,7 @@ class ProxyMiddleware(object):
         self.start_url = start_url
         self.proxy_url = proxy_url
         self.proxy_list = self.get_proxy_list()
+        self.pattern_article = re.compile(u'^http://www.pkulaw.cn/fulltext_form.aspx\?.+$')
 
     def get_proxy_list(self):
         return requests.get(self.proxy_url).json()
@@ -138,14 +140,14 @@ class ProxyMiddleware(object):
 
     def process_request(self, request, spider):
         url = request.url
-        if url == self.start_url:
+        if url == self.start_url or re.match(self.pattern_article, url):
             proxy = self.get_random_proxy()
             self.logger.debug('======' + '使用代理 ' + str(proxy) + "======")
             request.meta['proxy'] = 'http://{proxy}'.format(proxy=proxy)
 
     def process_response(self, request, response, spider):
         url = request.url
-        if url == self.start_url and response.status != 200:
+        if (url == self.start_url or re.match(self.pattern_article, url)) and response.status != 200:
             self.logger.debug('======返回获取代理======')
             request.meta['proxy'] = 'http://{proxy}'.format(proxy=self.get_random_proxy())
             return request
