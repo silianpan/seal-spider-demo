@@ -9,6 +9,7 @@ import logging
 
 import requests
 from fake_useragent import UserAgent
+from pkulaw.utils import is_expired
 from scrapy import signals
 
 
@@ -113,36 +114,38 @@ class ProxyMiddleware(object):
     def from_crawler(cls, crawler):
         settings = crawler.settings
         return cls(
-            proxy_url=settings.get('PROXY_URL')
+            proxy_url=settings.get('PROXY_URL'),
+            start_url=settings.get('START_URL')
         )
 
-    def __init__(self, proxy_url):
+    def __init__(self, proxy_url, start_url):
         self.logger = logging.getLogger(__name__)
+        self.start_url = start_url
         self.proxy_url = proxy_url
+        self.proxy_list = self.get_proxy_list()
+
+    def get_proxy_list(self):
+        return requests.get(self.proxy_url).json()
 
     def get_random_proxy(self):
-        try:
-            # ret = requests.get(self.proxy_url).json()
-            # if ret['code'] == 0 and ret['success']:
-            #     return ret.get('data')[0].get('ip') + ':' + str(ret.get('data')[0].get('port'))
-            # return self.get_random_proxy()
-            ret = requests.get("http://113.62.127.199:5010/get/").json()
-            proxy = ret.get('proxy')
-            if proxy is not None:
-                return proxy
-            return self.get_random_proxy()
-        except:
-            self.logger.debug('======异常重复获取代理======')
-            return self.get_random_proxy()
+        if self.proxy_list and self.proxy_list.get('code') == 0:
+            proxy_items = self.proxy_list.get('data')
+            for item in proxy_items:
+                if not is_expired(item.get('expire_time')):
+                    return item.get('ip') + ':' + str(item.get('port'))
+        self.proxy_list = self.get_proxy_list()
+        return self.get_random_proxy()
 
     def process_request(self, request, spider):
-        proxy = self.get_random_proxy()
-        if proxy:
+        url = request.url
+        if url == self.start_url:
+            proxy = self.get_random_proxy()
             self.logger.debug('======' + '使用代理 ' + str(proxy) + "======")
             request.meta['proxy'] = 'http://{proxy}'.format(proxy=proxy)
 
     def process_response(self, request, response, spider):
-        if response.status != 200:
+        url = request.url
+        if url == self.start_url and response.status != 200:
             self.logger.debug('======返回获取代理======')
             request.meta['proxy'] = 'http://{proxy}'.format(proxy=self.get_random_proxy())
             return request
@@ -152,8 +155,16 @@ class ProxyMiddleware(object):
 class RandomUserAgentMiddleware(object):
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.user_agent = UserAgent().random
+        self.user_agent = UserAgent()
 
     def process_request(self, request, spider):
-        self.logger.debug('======' + '使用User-Agent ' + str(self.user_agent) + "======")
-        request.headers.setdefault('User-Agent', self.user_agent)
+        ua = self.user_agent.random
+        self.logger.debug('======' + '使用User-Agent ' + str(ua) + "======")
+        request.headers.setdefault('User-Agent', ua)
+
+    def process_response(self, request, response, spider):
+        if response.status != 200:
+            self.logger.debug('======重新获取User-Agent======')
+            request.headers.setdefault('User-Agent', self.user_agent.random)
+            return request
+        return response
