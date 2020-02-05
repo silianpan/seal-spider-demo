@@ -14,6 +14,7 @@
 import re
 
 import scrapy
+from pkulaw.items import PkulawItem
 
 pattern_article = re.compile(u'^http://www.pkulaw.cn/fulltext_form.aspx\?.+$')
 pattern_page = re.compile(u'^.*第\s+(\d+)\s+.*共\s+(\d+)\s+.*$')
@@ -94,7 +95,7 @@ class ChlLawXa01(scrapy.Spider):
     def parse_detail(self, response):
         title = response.css('table#tbl_content_main > tr:first-child > td > span > strong::text').extract_first()
         li_list = response.css('table#tbl_content_main > tr')
-        ret = {}
+        ret = PkulawItem()
         for li in li_list:
             td_list = li.css('td')
             for td in td_list:
@@ -129,7 +130,14 @@ class ChlLawXa01(scrapy.Spider):
         if (u'现行有效' in ret['time_valid'] or u'尚未生效' in ret['time_valid']) and (u'任免' not in ret['force_level'] and
                                                                                u'工作文件' not in ret[
                                                                                    'force_level'] and u'工作答复' not in
-                                                                               ret['force_level']):
+                                                                               ret['force_level'] and u'部门工作文件' not in
+                                                                               ret['force_level'] and
+                                                                               u'行政许可批复' not in ret[
+                                                                                   'force_level']):
+            if 'appr_dept' not in ret:
+                ret['appr_dept'] = ''
+            if 'appr_date' not in ret:
+                ret['appr_date'] = ''
             if 'deadline' not in ret:
                 ret['deadline'] = ''
             if 'type' not in ret:
