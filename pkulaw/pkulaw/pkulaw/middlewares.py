@@ -123,11 +123,15 @@ class ProxyMiddleware(object):
 
     def get_random_proxy(self):
         try:
-            ret = requests.get(self.proxy_url).json()
-            if ret['code'] == 0 and ret['success']:
-                return ret.get('data')[0].get('ip') + ':' + str(ret.get('data')[0].get('port'))
-            else:
-                return self.get_random_proxy()
+            # ret = requests.get(self.proxy_url).json()
+            # if ret['code'] == 0 and ret['success']:
+            #     return ret.get('data')[0].get('ip') + ':' + str(ret.get('data')[0].get('port'))
+            # return self.get_random_proxy()
+            ret = requests.get("http://113.62.127.199:5010/get/").json()
+            proxy = ret.get('proxy')
+            if proxy is not None:
+                return proxy
+            return self.get_random_proxy()
         except:
             self.logger.debug('======异常重复获取代理======')
             return self.get_random_proxy()

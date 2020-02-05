@@ -42,9 +42,9 @@ class ChlLawXa01(scrapy.Spider):
             'range': 'name',
             'menu_item': menu_item
         }
-        fake_ua = UserAgent()
+        # fake_ua = UserAgent()
         headers = {
-            'User-Agent': fake_ua.random,
+            # 'User-Agent': fake_ua.random,
             'Origin': 'http://www.pkulaw.cn',
             'Referer': referer,
             'Host': 'www.pkulaw.cn',
