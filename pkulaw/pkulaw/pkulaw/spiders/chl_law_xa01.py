@@ -16,6 +16,9 @@ import re
 import scrapy
 
 pattern_article = re.compile(u'^http://www.pkulaw.cn/fulltext_form.aspx\?.+$')
+pattern_page = re.compile(u'^.*第\s+(\d+)\s+.*共\s+(\d+)\s+.*$')
+
+start_url = 'http://www.pkulaw.cn/doSearch.ashx'
 
 clusterwhere = '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01'
 db = 'chl'
@@ -55,24 +58,36 @@ class ChlLawXa01(scrapy.Spider):
 
     # 另外一种初始链接写法
     def start_requests(self):
-        url = 'http://www.pkulaw.cn/doSearch.ashx'
-        yield scrapy.FormRequest(url=url, method='POST', headers=headers, cookies=cookies, formdata=formdata,
+        yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=cookies, formdata=formdata,
                                  callback=self.parse, dont_filter=True)
 
     # 如果是简写初始url，此方法名必须为：parse
     def parse(self, response):
-        # href_list = response.xpath('//a[@class="main-ljwenzi"]/@href').extract()
-        # for href in href_list:
-        #     href = response.urljoin(href)
-        #     if re.match(pattern_article, href):
-        #         yield scrapy.Request(url=href, headers=headers, cookies=cookies, callback=self.parse_detail,
-        #                              dont_filter=True)
+        href_list = response.css('a.main-ljwenzi::attr(href)').extract_first()
+        for href in href_list:
+            href = response.urljoin(href)
+            if re.match(pattern_article, href):
+                yield scrapy.Request(url=href, headers=headers, cookies=cookies, callback=self.parse_detail,
+                                     dont_filter=True)
 
-        href = response.css('a.main-ljwenzi::attr(href)').extract_first()
-        href = response.urljoin(href)
-        if re.match(pattern_article, href):
-            yield scrapy.Request(url=href, headers=headers, cookies=cookies, callback=self.parse_detail,
-                                 dont_filter=True)
+        pages = response.css('.main-top4-1 > table > tr:first-child > td > span::text').extract_first()
+        pages_ret = re.match(pattern_page, pages)
+        if pages_ret:
+            current_index = int(pages_ret.group(1))
+            page_size = int(pages_ret.group(2))
+            if 1 <= current_index <= page_size:
+                next_formdata = {
+                    'range': 'name',
+                    'Db': db,
+                    'clusterwhere': clusterwhere,
+                    'aim_page': str(current_index),
+                    'page_count': str(page_size),
+                    'clust_db': db,
+                    'menu_item': menu_item
+                }
+                yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=cookies,
+                                         formdata=next_formdata,
+                                         callback=self.parse, dont_filter=True)
 
     def parse_detail(self, response):
         title = response.css('table#tbl_content_main > tr:first-child > td > span > strong::text').extract_first()
