@@ -62,7 +62,7 @@ class ChlLawXa01(scrapy.Spider):
     # 另外一种初始链接写法
     def start_requests(self):
         yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=cookies, formdata=formdata,
-                                 callback=self.parse, dont_filter=True)
+                                 callback=self.parse)
 
     # 如果是简写初始url，此方法名必须为：parse
     def parse(self, response):
@@ -70,8 +70,7 @@ class ChlLawXa01(scrapy.Spider):
         for href in href_list:
             href = response.urljoin(href)
             if re.match(pattern_article, href):
-                yield scrapy.Request(url=href, headers=headers, cookies=cookies, callback=self.parse_detail,
-                                     dont_filter=True)
+                yield scrapy.Request(url=href, headers=headers, cookies=cookies, callback=self.parse_detail)
 
         # pages = response.css('.main-top4-1 > table > tr:first-child > td > span::text').extract_first()
         # pages_ret = re.match(pattern_page, pages)
@@ -90,7 +89,7 @@ class ChlLawXa01(scrapy.Spider):
         #         }
         #         yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=cookies,
         #                                  formdata=next_formdata,
-        #                                  callback=self.parse, dont_filter=True)
+        #                                  callback=self.parse)
 
     def parse_detail(self, response):
         title = response.css('table#tbl_content_main > tr:first-child > td > span > strong::text').extract_first()
