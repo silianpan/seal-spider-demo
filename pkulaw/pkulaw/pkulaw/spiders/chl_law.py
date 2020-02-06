@@ -252,7 +252,7 @@ class ChlLaw(scrapy.Spider):
                 next_formdata['page_count'] = str(page_size)
                 yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=cookies,
                                          formdata=next_formdata,
-                                         callback=self.parse, dont_filter=True)
+                                         callback=self.parse, meta={'callback_options': callback_options}, dont_filter=True)
 
     def parse_detail(self, response):
         title = response.css('table#tbl_content_main > tr:first-child > td > span > strong::text').extract_first()
