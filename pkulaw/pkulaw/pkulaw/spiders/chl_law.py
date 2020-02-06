@@ -229,9 +229,10 @@ class ChlLaw(scrapy.Spider):
 
     # 如果是简写初始url，此方法名必须为：parse
     def parse(self, response):
-        headers = response.meta['callback_options']['headers']
-        formdata = response.meta['callback_options']['formdata']
-        cookies = response.meta['callback_options']['cookies']
+        callback_options = response.meta.get('callback_options')
+        headers = callback_options.get('headers')
+        formdata = callback_options.get('formdata')
+        cookies = callback_options.get('cookies')
 
         href_list = response.css('a.main-ljwenzi::attr(href)').extract()
         for href in href_list:
