@@ -62,151 +62,151 @@ all_options = [
             'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01'
         }
     },
-    # xc02 中央法规-行政法规
-    {
-        'Referer': referer,
-        'formdata': {
-            'Db': Db,
-            'clust_db': clust_db,
-            'menu_item': menu_item,
-            'range': 'name',
-            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXC02'
-        }
-    },
-    # xe03 中央法规-部门规章
-    {
-        'Referer': referer,
-        'formdata': {
-            'Db': Db,
-            'clust_db': clust_db,
-            'menu_item': menu_item,
-            'range': 'name',
-            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXE03'
-        }
-    },
-    # xg04 中央法规-司法解释
-    {
-        'Referer': referer,
-        'formdata': {
-            'Db': Db,
-            'clust_db': clust_db,
-            'menu_item': menu_item,
-            'range': 'name',
-            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXG04'
-        }
-    },
-    # xi05 中央法规-团体规定
-    {
-        'Referer': referer,
-        'formdata': {
-            'Db': Db,
-            'clust_db': clust_db,
-            'menu_item': menu_item,
-            'range': 'name',
-            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXI05'
-        }
-    },
-    # xk06 中央法规-行业规定
-    {
-        'Referer': referer,
-        'formdata': {
-            'Db': Db,
-            'clust_db': clust_db,
-            'menu_item': menu_item,
-            'range': 'name',
-            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXK06'
-        }
-    },
-    # xr12 中央法规-党内法规
-    {
-        'Referer': referer,
-        'formdata': {
-            'Db': Db,
-            'clust_db': clust_db,
-            'menu_item': menu_item,
-            'range': 'name',
-            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXR12'
-        }
-    },
-    # 地方法规-甘肃
-    {
-        'Referer': referer_city,
-        'formdata': {
-            'Db': Db_city,
-            'clust_db': clust_db_city,
-            'menu_item': menu_item,
-            'range': 'name',
-            'clusterwhere': '%25e5%258f%2591%25e5%25b8%2583%25e9%2583%25a8%25e9%2597%25a8%253d826'
-        }
-    },
-    # 地方法规-青海
-    {
-        'Referer': referer_city,
-        'formdata': {
-            'Db': Db_city,
-            'clust_db': clust_db_city,
-            'menu_item': menu_item,
-            'range': 'name',
-            'clusterwhere': '%25e5%258f%2591%25e5%25b8%2583%25e9%2583%25a8%25e9%2597%25a8%253d827'
-        }
-    },
-    # 地方法规-四川
-    {
-        'Referer': referer_city,
-        'formdata': {
-            'Db': Db_city,
-            'clust_db': clust_db_city,
-            'menu_item': menu_item,
-            'range': 'name',
-            'clusterwhere': '%25e5%258f%2591%25e5%25b8%2583%25e9%2583%25a8%25e9%2597%25a8%253d821'
-        }
-    },
-    # 地方法规-西藏
-    {
-        'Referer': referer_city,
-        'formdata': {
-            'Db': Db_city,
-            'clust_db': clust_db_city,
-            'menu_item': menu_item,
-            'range': 'name',
-            'clusterwhere': '%25e5%258f%2591%25e5%25b8%2583%25e9%2583%25a8%25e9%2597%25a8%253d824'
-        }
-    },
-    # 地方法规-云南
-    {
-        'Referer': referer_city,
-        'formdata': {
-            'Db': Db_city,
-            'clust_db': clust_db_city,
-            'menu_item': menu_item,
-            'range': 'name',
-            'clusterwhere': '%25e5%258f%2591%25e5%25b8%2583%25e9%2583%25a8%25e9%2597%25a8%253d823'
-        }
-    },
-    # 立法资料-中央
-    {
-        'Referer': referer_proto,
-        'formdata': {
-            'Db': Db_proto,
-            'clust_db': clust_db_proto,
-            'menu_item': menu_item_proto,
-            'range': 'name',
-            'clusterwhere': '%25e6%2589%2580%25e5%25b1%259e%25e8%258c%2583%25e5%259b%25b4%253d0',
-            'Search_Mode': Search_Mode
-        }
-    },
-    # 立法资料-地方
-    {
-        'Referer': referer_proto,
-        'formdata': {
-            'Db': Db_proto,
-            'clust_db': clust_db_proto,
-            'menu_item': menu_item_proto,
-            'range': 'name',
-            'clusterwhere': '%25e6%2589%2580%25e5%25b1%259e%25e8%258c%2583%25e5%259b%25b4%253d1',
-            'Search_Mode': Search_Mode
-        }
-    }
+    # # xc02 中央法规-行政法规
+    # {
+    #     'Referer': referer,
+    #     'formdata': {
+    #         'Db': Db,
+    #         'clust_db': clust_db,
+    #         'menu_item': menu_item,
+    #         'range': 'name',
+    #         'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXC02'
+    #     }
+    # },
+    # # xe03 中央法规-部门规章
+    # {
+    #     'Referer': referer,
+    #     'formdata': {
+    #         'Db': Db,
+    #         'clust_db': clust_db,
+    #         'menu_item': menu_item,
+    #         'range': 'name',
+    #         'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXE03'
+    #     }
+    # },
+    # # xg04 中央法规-司法解释
+    # {
+    #     'Referer': referer,
+    #     'formdata': {
+    #         'Db': Db,
+    #         'clust_db': clust_db,
+    #         'menu_item': menu_item,
+    #         'range': 'name',
+    #         'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXG04'
+    #     }
+    # },
+    # # xi05 中央法规-团体规定
+    # {
+    #     'Referer': referer,
+    #     'formdata': {
+    #         'Db': Db,
+    #         'clust_db': clust_db,
+    #         'menu_item': menu_item,
+    #         'range': 'name',
+    #         'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXI05'
+    #     }
+    # },
+    # # xk06 中央法规-行业规定
+    # {
+    #     'Referer': referer,
+    #     'formdata': {
+    #         'Db': Db,
+    #         'clust_db': clust_db,
+    #         'menu_item': menu_item,
+    #         'range': 'name',
+    #         'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXK06'
+    #     }
+    # },
+    # # xr12 中央法规-党内法规
+    # {
+    #     'Referer': referer,
+    #     'formdata': {
+    #         'Db': Db,
+    #         'clust_db': clust_db,
+    #         'menu_item': menu_item,
+    #         'range': 'name',
+    #         'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXR12'
+    #     }
+    # },
+    # # 地方法规-甘肃
+    # {
+    #     'Referer': referer_city,
+    #     'formdata': {
+    #         'Db': Db_city,
+    #         'clust_db': clust_db_city,
+    #         'menu_item': menu_item,
+    #         'range': 'name',
+    #         'clusterwhere': '%25e5%258f%2591%25e5%25b8%2583%25e9%2583%25a8%25e9%2597%25a8%253d826'
+    #     }
+    # },
+    # # 地方法规-青海
+    # {
+    #     'Referer': referer_city,
+    #     'formdata': {
+    #         'Db': Db_city,
+    #         'clust_db': clust_db_city,
+    #         'menu_item': menu_item,
+    #         'range': 'name',
+    #         'clusterwhere': '%25e5%258f%2591%25e5%25b8%2583%25e9%2583%25a8%25e9%2597%25a8%253d827'
+    #     }
+    # },
+    # # 地方法规-四川
+    # {
+    #     'Referer': referer_city,
+    #     'formdata': {
+    #         'Db': Db_city,
+    #         'clust_db': clust_db_city,
+    #         'menu_item': menu_item,
+    #         'range': 'name',
+    #         'clusterwhere': '%25e5%258f%2591%25e5%25b8%2583%25e9%2583%25a8%25e9%2597%25a8%253d821'
+    #     }
+    # },
+    # # 地方法规-西藏
+    # {
+    #     'Referer': referer_city,
+    #     'formdata': {
+    #         'Db': Db_city,
+    #         'clust_db': clust_db_city,
+    #         'menu_item': menu_item,
+    #         'range': 'name',
+    #         'clusterwhere': '%25e5%258f%2591%25e5%25b8%2583%25e9%2583%25a8%25e9%2597%25a8%253d824'
+    #     }
+    # },
+    # # 地方法规-云南
+    # {
+    #     'Referer': referer_city,
+    #     'formdata': {
+    #         'Db': Db_city,
+    #         'clust_db': clust_db_city,
+    #         'menu_item': menu_item,
+    #         'range': 'name',
+    #         'clusterwhere': '%25e5%258f%2591%25e5%25b8%2583%25e9%2583%25a8%25e9%2597%25a8%253d823'
+    #     }
+    # },
+    # # 立法资料-中央
+    # {
+    #     'Referer': referer_proto,
+    #     'formdata': {
+    #         'Db': Db_proto,
+    #         'clust_db': clust_db_proto,
+    #         'menu_item': menu_item_proto,
+    #         'range': 'name',
+    #         'clusterwhere': '%25e6%2589%2580%25e5%25b1%259e%25e8%258c%2583%25e5%259b%25b4%253d0',
+    #         'Search_Mode': Search_Mode
+    #     }
+    # },
+    # # 立法资料-地方
+    # {
+    #     'Referer': referer_proto,
+    #     'formdata': {
+    #         'Db': Db_proto,
+    #         'clust_db': clust_db_proto,
+    #         'menu_item': menu_item_proto,
+    #         'range': 'name',
+    #         'clusterwhere': '%25e6%2589%2580%25e5%25b1%259e%25e8%258c%2583%25e5%259b%25b4%253d1',
+    #         'Search_Mode': Search_Mode
+    #     }
+    # }
 ]
 
 
