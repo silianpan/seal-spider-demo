@@ -21,23 +21,23 @@ pattern_page = re.compile(u'^.*第\s+(\d+)\s+.*共\s+(\d+)\s+.*$')
 
 start_url = 'http://www.pkulaw.cn/doSearch.ashx'
 
-clusterwhere = '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01'
-db = 'chl'
+Db = 'chl'
 clust_db = 'chl'
 menu_item = 'law'
-Search_Mode = 'accurate'
 referer = 'http://www.pkulaw.cn/cluster_form.aspx?Db=chl&menu_item=law&EncodingName=&keyword=&range=name&'
 
-formdata = {
-    'Db': db,
-    'clusterwhere': clusterwhere,
-    'clust_db': clust_db,
-    'range': 'name',
-    'menu_item': menu_item
-}
-headers = {
+Db_city = 'lar'
+clust_db_city = 'lar'
+referer_city = 'http://www.pkulaw.cn/cluster_form.aspx?Db=lar&menu_item=law&EncodingName=&keyword=&range=name&'
+
+Db_proto = 'protocol,lawexplanation,whitebook,workreport,introduction'
+clust_db_proto = 'protocol'
+menu_item_proto = 'lfbj_all'
+Search_Mode = 'accurate'
+referer_proto = 'http://www.pkulaw.cn/cluster_call_form.aspx?Db=protocol&menu_item=lfbj_all&EncodingName=&keyword=&range=name&'
+
+common_headers = {
     'Origin': 'http://www.pkulaw.cn',
-    'Referer': referer,
     'Host': 'www.pkulaw.cn',
     'Accept': '*/*',
     'Accept-Encoding': 'gzip, deflate, br',
@@ -45,27 +45,195 @@ headers = {
     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
     'X-Requested-With': 'XMLHttpRequest'
 }
-cookies = {
+common_cookies = {
     'isCheck': 'ValidateSuccess_126',
     'codeCompare': 'OK_126'
 }
+
+all_options = [
+    # xa01 中央法规-法律
+    {
+        'Referer': referer,
+        'formdata': {
+            'Db': Db,
+            'clust_db': clust_db,
+            'menu_item': menu_item,
+            'range': 'name',
+            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXA01'
+        }
+    },
+    # xc02 中央法规-行政法规
+    {
+        'Referer': referer,
+        'formdata': {
+            'Db': Db,
+            'clust_db': clust_db,
+            'menu_item': menu_item,
+            'range': 'name',
+            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXC02'
+        }
+    },
+    # xe03 中央法规-部门规章
+    {
+        'Referer': referer,
+        'formdata': {
+            'Db': Db,
+            'clust_db': clust_db,
+            'menu_item': menu_item,
+            'range': 'name',
+            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXE03'
+        }
+    },
+    # xg04 中央法规-司法解释
+    {
+        'Referer': referer,
+        'formdata': {
+            'Db': Db,
+            'clust_db': clust_db,
+            'menu_item': menu_item,
+            'range': 'name',
+            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXG04'
+        }
+    },
+    # xi05 中央法规-团体规定
+    {
+        'Referer': referer,
+        'formdata': {
+            'Db': Db,
+            'clust_db': clust_db,
+            'menu_item': menu_item,
+            'range': 'name',
+            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXI05'
+        }
+    },
+    # xk06 中央法规-行业规定
+    {
+        'Referer': referer,
+        'formdata': {
+            'Db': Db,
+            'clust_db': clust_db,
+            'menu_item': menu_item,
+            'range': 'name',
+            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXK06'
+        }
+    },
+    # xr12 中央法规-党内法规
+    {
+        'Referer': referer,
+        'formdata': {
+            'Db': Db,
+            'clust_db': clust_db,
+            'menu_item': menu_item,
+            'range': 'name',
+            'clusterwhere': '%25e6%2595%2588%25e5%258a%259b%25e7%25ba%25a7%25e5%2588%25ab%253dXR12'
+        }
+    },
+    # 地方法规-甘肃
+    {
+        'Referer': referer_city,
+        'formdata': {
+            'Db': Db_city,
+            'clust_db': clust_db_city,
+            'menu_item': menu_item,
+            'range': 'name',
+            'clusterwhere': '%25e5%258f%2591%25e5%25b8%2583%25e9%2583%25a8%25e9%2597%25a8%253d826'
+        }
+    },
+    # 地方法规-青海
+    {
+        'Referer': referer_city,
+        'formdata': {
+            'Db': Db_city,
+            'clust_db': clust_db_city,
+            'menu_item': menu_item,
+            'range': 'name',
+            'clusterwhere': '%25e5%258f%2591%25e5%25b8%2583%25e9%2583%25a8%25e9%2597%25a8%253d827'
+        }
+    },
+    # 地方法规-四川
+    {
+        'Referer': referer_city,
+        'formdata': {
+            'Db': Db_city,
+            'clust_db': clust_db_city,
+            'menu_item': menu_item,
+            'range': 'name',
+            'clusterwhere': '%25e5%258f%2591%25e5%25b8%2583%25e9%2583%25a8%25e9%2597%25a8%253d821'
+        }
+    },
+    # 地方法规-西藏
+    {
+        'Referer': referer_city,
+        'formdata': {
+            'Db': Db_city,
+            'clust_db': clust_db_city,
+            'menu_item': menu_item,
+            'range': 'name',
+            'clusterwhere': '%25e5%258f%2591%25e5%25b8%2583%25e9%2583%25a8%25e9%2597%25a8%253d824'
+        }
+    },
+    # 地方法规-云南
+    {
+        'Referer': referer_city,
+        'formdata': {
+            'Db': Db_city,
+            'clust_db': clust_db_city,
+            'menu_item': menu_item,
+            'range': 'name',
+            'clusterwhere': '%25e5%258f%2591%25e5%25b8%2583%25e9%2583%25a8%25e9%2597%25a8%253d823'
+        }
+    },
+    # 立法资料-中央
+    {
+        'Referer': referer_proto,
+        'formdata': {
+            'Db': Db_proto,
+            'clust_db': clust_db_proto,
+            'menu_item': menu_item_proto,
+            'range': 'name',
+            'clusterwhere': '%25e6%2589%2580%25e5%25b1%259e%25e8%258c%2583%25e5%259b%25b4%253d0',
+            'Search_Mode': Search_Mode
+        }
+    },
+    # 立法资料-地方
+    {
+        'Referer': referer_proto,
+        'formdata': {
+            'Db': Db_proto,
+            'clust_db': clust_db_proto,
+            'menu_item': menu_item_proto,
+            'range': 'name',
+            'clusterwhere': '%25e6%2589%2580%25e5%25b1%259e%25e8%258c%2583%25e5%259b%25b4%253d1',
+            'Search_Mode': Search_Mode
+        }
+    }
+]
 
 
 class ChlLaw(scrapy.Spider):
     name = 'chlLaw'
 
-    # start_urls = [  # 另外一种写法，无需定义start_requests方法
-    #     'http://lab.scrapyd.cn/page/1/',
-    #     'http://lab.scrapyd.cn/page/2/',
-    # ]
-
     # 另外一种初始链接写法
     def start_requests(self):
-        yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=cookies, formdata=formdata,
-                                 callback=self.parse, dont_filter=True)
+        for option_item in all_options:
+            headers = common_headers.copy()
+            headers['Referer'] = option_item['Referer']
+            formdata = option_item['formdata']
+            callback_options = {
+                'headers': headers,
+                'formdata': formdata,
+                'cookies': common_cookies
+            }
+            yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=common_cookies, formdata=formdata,
+                                     callback=self.parse, meta={'callback_options': callback_options}, dont_filter=True)
 
     # 如果是简写初始url，此方法名必须为：parse
     def parse(self, response):
+        print(response.meta)
+        headers = response.meta['callback_options']['headers']
+        formdata = response.meta['callback_options']['formdata']
+        cookies = response.meta['callback_options']['cookies']
+
         href_list = response.css('a.main-ljwenzi::attr(href)').extract()
         for href in href_list:
             href = response.urljoin(href)
@@ -73,24 +241,18 @@ class ChlLaw(scrapy.Spider):
                 yield scrapy.Request(url=href, headers=headers, cookies=cookies, callback=self.parse_detail,
                                      dont_filter=False)
 
-        # pages = response.css('.main-top4-1 > table > tr:first-child > td > span::text').extract_first()
-        # pages_ret = re.match(pattern_page, pages)
-        # if pages_ret:
-        #     current_index = int(pages_ret.group(1))
-        #     page_size = int(pages_ret.group(2))
-        #     if 1 <= current_index <= page_size:
-        #         next_formdata = {
-        #             'range': 'name',
-        #             'Db': db,
-        #             'clusterwhere': clusterwhere,
-        #             'aim_page': str(current_index),
-        #             'page_count': str(page_size),
-        #             'clust_db': clust_db,
-        #             'menu_item': menu_item
-        #         }
-        #         yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=cookies,
-        #                                  formdata=next_formdata,
-        #                                  callback=self.parse, dont_filter=True)
+        pages = response.css('.main-top4-1 > table > tr:first-child > td > span::text').extract_first()
+        pages_ret = re.match(pattern_page, pages)
+        if pages_ret:
+            current_index = int(pages_ret.group(1))
+            page_size = int(pages_ret.group(2))
+            if 1 <= current_index <= page_size:
+                next_formdata = formdata.copy()
+                next_formdata['aim_page'] = str(current_index)
+                next_formdata['page_count'] = str(page_size)
+                yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=cookies,
+                                         formdata=next_formdata,
+                                         callback=self.parse, dont_filter=True)
 
     def parse_detail(self, response):
         title = response.css('table#tbl_content_main > tr:first-child > td > span > strong::text').extract_first()
