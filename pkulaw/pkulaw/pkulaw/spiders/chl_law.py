@@ -229,7 +229,6 @@ class ChlLaw(scrapy.Spider):
 
     # 如果是简写初始url，此方法名必须为：parse
     def parse(self, response):
-        print(response.meta)
         headers = response.meta['callback_options']['headers']
         formdata = response.meta['callback_options']['formdata']
         cookies = response.meta['callback_options']['cookies']
