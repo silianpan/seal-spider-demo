@@ -15,7 +15,10 @@ from fake_useragent import UserAgent
 from pkulaw.utils import is_expired
 from scrapy import signals
 from scrapy.downloadermiddlewares.retry import RetryMiddleware
+from scrapy.utils.python import global_object_name
 from scrapy.utils.response import response_status_message
+
+logger = logging.getLogger(__name__)
 
 
 class PkulawSpiderMiddleware(object):
@@ -123,7 +126,6 @@ class ProxyMiddleware(object):
         return cls(crawler.settings)
 
     def __init__(self, settings):
-        self.logger = logging.getLogger(__name__)
         self.start_url = settings.get('START_URL')
         self.proxy_url = settings.get('PROXY_URL')
         self.proxy_list = self.get_proxy_list()
@@ -145,13 +147,13 @@ class ProxyMiddleware(object):
         url = request.url
         if url == self.start_url or re.match(self.pattern_article, url):
             proxy = self.get_random_proxy()
-            self.logger.debug('======使用代理：' + str(proxy) + '======')
+            logger.debug('======使用代理：' + str(proxy) + '======')
             request.meta['proxy'] = 'http://{proxy}'.format(proxy=proxy)
 
     def process_response(self, request, response, spider):
         url = request.url
         if (url == self.start_url or re.match(self.pattern_article, url)) and response.status != 200:
-            self.logger.debug('======返回异常，重试使用代理======')
+            logger.warning('======返回异常，重试使用代理======')
             request.meta['proxy'] = 'http://{proxy}'.format(proxy=self.get_random_proxy())
             return request
         return response
@@ -163,12 +165,11 @@ class RandomUserAgentMiddleware(object):
     """
 
     def __init__(self):
-        self.logger = logging.getLogger(__name__)
         self.user_agent = UserAgent()
 
     def process_request(self, request, spider):
         ua = self.user_agent.random
-        self.logger.debug('======使用User-Agent：' + str(ua) + '======')
+        logger.debug('======使用User-Agent：' + str(ua) + '======')
         request.headers.setdefault('User-Agent', ua)
 
 
@@ -182,9 +183,7 @@ class MyRetryMiddleware(RetryMiddleware):
         return cls(crawler.settings)
 
     def __init__(self, settings):
-        self.logger = logging.getLogger(__name__)
-        self.max_retry_times = settings.getint('RETRY_TIMES')
-        self.retry_http_codes = set(int(x) for x in settings.getlist('RETRY_HTTP_CODES'))
+        super().__init__(settings)
         self.proxy_url = settings.get('PROXY_URL')
 
     def get_proxy_list(self):
@@ -207,13 +206,13 @@ class MyRetryMiddleware(RetryMiddleware):
             retries = request.meta.get('retry_times', 0)
             if retries >= self.max_retry_times:
                 new_proxy = self.get_random_proxy()
-                self.logger.debug('======使用新代理：' + str(new_proxy) + '======')
+                logger.debug('======使用新代理：' + str(new_proxy) + '======')
                 request.meta['proxy'] = 'http://{proxy}'.format(proxy=new_proxy)
 
             # 获取返回原因
             reason = response_status_message(response.status)
             time.sleep(random.randint(3, 5))
-            self.logger.warning('======返回值异常, 更换代理，进行重试======')
+            logger.warning('======返回值异常, 更换代理，进行重试======')
             return self._retry(request, reason, spider) or response
         return response
 
@@ -224,10 +223,40 @@ class MyRetryMiddleware(RetryMiddleware):
             retries = request.meta.get('retry_times', 0)
             if retries >= self.max_retry_times:
                 new_proxy = self.get_random_proxy()
-                self.logger.debug('======使用新代理：' + str(new_proxy) + '======')
+                logger.debug('======使用新代理：' + str(new_proxy) + '======')
                 request.meta['proxy'] = 'http://{proxy}'.format(proxy=new_proxy)
 
             time.sleep(random.randint(3, 5))
-            self.logger.warning('======连接异常, 更换代理，进行重试======')
+            logger.warning('======连接异常, 更换代理，进行重试======')
 
             return self._retry(request, exception, spider)
+
+    # def _retry(self, request, reason, spider):
+    #     retries = request.meta.get('retry_times', 0) + 1
+    #
+    #     retry_times = self.max_retry_times
+    #
+    #     if 'max_retry_times' in request.meta:
+    #         retry_times = request.meta['max_retry_times']
+    #
+    #     stats = spider.crawler.stats
+    #     if retries <= retry_times:
+    #         logger.debug("Retrying %(request)s (failed %(retries)d times): %(reason)s",
+    #                      {'request': request, 'retries': retries, 'reason': reason},
+    #                      extra={'spider': spider})
+    #         retryreq = request.copy()
+    #         retryreq.meta['retry_times'] = retries
+    #         retryreq.dont_filter = True
+    #         retryreq.priority = request.priority + self.priority_adjust
+    #
+    #         if isinstance(reason, Exception):
+    #             reason = global_object_name(reason.__class__)
+    #
+    #         stats.inc_value('retry/count')
+    #         stats.inc_value('retry/reason_count/%s' % reason)
+    #         return retryreq
+    #     else:
+    #         stats.inc_value('retry/max_reached')
+    #         logger.debug("Gave up retrying %(request)s (failed %(retries)d times): %(reason)s",
+    #                      {'request': request, 'retries': retries, 'reason': reason},
+    #                      extra={'spider': spider})
