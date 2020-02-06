@@ -71,7 +71,7 @@ class ChlLaw(scrapy.Spider):
             href = response.urljoin(href)
             if re.match(pattern_article, href):
                 yield scrapy.Request(url=href, headers=headers, cookies=cookies, callback=self.parse_detail,
-                                     dont_filter=True)
+                                     dont_filter=False)
 
         # pages = response.css('.main-top4-1 > table > tr:first-child > td > span::text').extract_first()
         # pages_ret = re.match(pattern_page, pages)
