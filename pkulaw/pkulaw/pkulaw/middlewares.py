@@ -6,17 +6,12 @@
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 import logging
-import random
 import re
-import time
 
 import requests
 from fake_useragent import UserAgent
 from pkulaw.utils import is_expired
 from scrapy import signals
-from scrapy.downloadermiddlewares.retry import RetryMiddleware
-from scrapy.utils.python import global_object_name
-from scrapy.utils.response import response_status_message
 
 logger = logging.getLogger(__name__)
 
@@ -126,6 +121,8 @@ class ProxyMiddleware(object):
         return cls(crawler.settings)
 
     def __init__(self, settings):
+        self.max_retry_times = settings.getint('RETRY_TIMES')
+        self.retry_http_codes = set(int(x) for x in settings.getlist('RETRY_HTTP_CODES'))
         self.start_url = settings.get('START_URL')
         self.proxy_url = settings.get('PROXY_URL')
         self.proxy_list = self.get_proxy_list()
@@ -153,8 +150,17 @@ class ProxyMiddleware(object):
     def process_response(self, request, response, spider):
         url = request.url
         if (url == self.start_url or re.match(self.pattern_article, url)) and response.status != 200:
-            logger.warning('======返回异常，重试使用代理======')
-            request.meta['proxy'] = 'http://{proxy}'.format(proxy=self.get_random_proxy())
+            if response.status in self.retry_http_codes:
+                # 获取重试次数
+                retries = request.meta.get('retry_times', 0)
+                if retries >= self.max_retry_times:
+                    # 更新代理列表，使用新代理
+                    self.proxy_list = self.get_proxy_list()
+                    new_proxy = self.get_random_proxy()
+                    logger.debug('======已经达到最大重试次数，使用新代理：' + str(new_proxy) + '======')
+                    request.meta['proxy'] = 'http://{proxy}'.format(proxy=new_proxy)
+                    return request
+            logger.warning('======返回异常，重试使用原代理：' + request.meta['proxy'] + '======')
             return request
         return response
 
@@ -172,91 +178,60 @@ class RandomUserAgentMiddleware(object):
         logger.debug('======使用User-Agent：' + str(ua) + '======')
         request.headers.setdefault('User-Agent', ua)
 
-
-class MyRetryMiddleware(RetryMiddleware):
-    """
-    重试中间件，更换代理
-    """
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        return cls(crawler.settings)
-
-    def __init__(self, settings):
-        super().__init__(settings)
-        self.proxy_url = settings.get('PROXY_URL')
-
-    def get_proxy_list(self):
-        return requests.get(self.proxy_url).json()
-
-    def get_random_proxy(self):
-        proxy_list = self.get_proxy_list()
-        if proxy_list and proxy_list.get('code') == 0:
-            proxy_items = proxy_list.get('data')
-            for item in proxy_items:
-                if not is_expired(item.get('expire_time')):
-                    return item.get('ip') + ':' + str(item.get('port'))
-        return self.get_random_proxy()
-
-    def process_response(self, request, response, spider):
-        if request.meta.get('dont_retry', False):
-            return response
-        if response.status in self.retry_http_codes:
-            # 获取重试次数
-            retries = request.meta.get('retry_times', 0)
-            if retries >= self.max_retry_times:
-                new_proxy = self.get_random_proxy()
-                logger.debug('======使用新代理：' + str(new_proxy) + '======')
-                request.meta['proxy'] = 'http://{proxy}'.format(proxy=new_proxy)
-
-            # 获取返回原因
-            reason = response_status_message(response.status)
-            time.sleep(random.randint(3, 5))
-            logger.warning('======返回值异常, 更换代理，进行重试======')
-            return self._retry(request, reason, spider) or response
-        return response
-
-    def process_exception(self, request, exception, spider):
-        if isinstance(exception, self.EXCEPTIONS_TO_RETRY) \
-                and not request.meta.get('dont_retry', False):
-            # 获取重试次数
-            retries = request.meta.get('retry_times', 0)
-            if retries >= self.max_retry_times:
-                new_proxy = self.get_random_proxy()
-                logger.debug('======使用新代理：' + str(new_proxy) + '======')
-                request.meta['proxy'] = 'http://{proxy}'.format(proxy=new_proxy)
-
-            time.sleep(random.randint(3, 5))
-            logger.warning('======连接异常, 更换代理，进行重试======')
-
-            return self._retry(request, exception, spider)
-
-    # def _retry(self, request, reason, spider):
-    #     retries = request.meta.get('retry_times', 0) + 1
-    #
-    #     retry_times = self.max_retry_times
-    #
-    #     if 'max_retry_times' in request.meta:
-    #         retry_times = request.meta['max_retry_times']
-    #
-    #     stats = spider.crawler.stats
-    #     if retries <= retry_times:
-    #         logger.debug("Retrying %(request)s (failed %(retries)d times): %(reason)s",
-    #                      {'request': request, 'retries': retries, 'reason': reason},
-    #                      extra={'spider': spider})
-    #         retryreq = request.copy()
-    #         retryreq.meta['retry_times'] = retries
-    #         retryreq.dont_filter = True
-    #         retryreq.priority = request.priority + self.priority_adjust
-    #
-    #         if isinstance(reason, Exception):
-    #             reason = global_object_name(reason.__class__)
-    #
-    #         stats.inc_value('retry/count')
-    #         stats.inc_value('retry/reason_count/%s' % reason)
-    #         return retryreq
-    #     else:
-    #         stats.inc_value('retry/max_reached')
-    #         logger.debug("Gave up retrying %(request)s (failed %(retries)d times): %(reason)s",
-    #                      {'request': request, 'retries': retries, 'reason': reason},
-    #                      extra={'spider': spider})
+# class MyRetryMiddleware(RetryMiddleware):
+#     """
+#     重试中间件，更换代理
+#     """
+#
+#     @classmethod
+#     def from_crawler(cls, crawler):
+#         return cls(crawler.settings)
+#
+#     def __init__(self, settings):
+#         super().__init__(settings)
+#         self.proxy_url = settings.get('PROXY_URL')
+#
+#     def get_proxy_list(self):
+#         return requests.get(self.proxy_url).json()
+#
+#     def get_random_proxy(self):
+#         proxy_list = self.get_proxy_list()
+#         if proxy_list and proxy_list.get('code') == 0:
+#             proxy_items = proxy_list.get('data')
+#             for item in proxy_items:
+#                 if not is_expired(item.get('expire_time')):
+#                     return item.get('ip') + ':' + str(item.get('port'))
+#         return self.get_random_proxy()
+#
+#     def process_response(self, request, response, spider):
+#         if request.meta.get('dont_retry', False):
+#             return response
+#         if response.status in self.retry_http_codes:
+#             # 获取重试次数
+#             retries = request.meta.get('retry_times', 0)
+#             if retries >= self.max_retry_times:
+#                 new_proxy = self.get_random_proxy()
+#                 logger.debug('======使用新代理：' + str(new_proxy) + '======')
+#                 request.meta['proxy'] = 'http://{proxy}'.format(proxy=new_proxy)
+#
+#             # 获取返回原因
+#             reason = response_status_message(response.status)
+#             time.sleep(random.randint(3, 5))
+#             logger.warning('======返回值异常, 更换代理，进行重试======')
+#             return self._retry(request, reason, spider) or response
+#         return response
+#
+#     def process_exception(self, request, exception, spider):
+#         if isinstance(exception, self.EXCEPTIONS_TO_RETRY) \
+#                 and not request.meta.get('dont_retry', False):
+#             # 获取重试次数
+#             retries = request.meta.get('retry_times', 0)
+#             if retries >= self.max_retry_times:
+#                 new_proxy = self.get_random_proxy()
+#                 logger.debug('======使用新代理：' + str(new_proxy) + '======')
+#                 request.meta['proxy'] = 'http://{proxy}'.format(proxy=new_proxy)
+#
+#             time.sleep(random.randint(3, 5))
+#             logger.warning('======连接异常, 更换代理，进行重试======')
+#
+#             return self._retry(request, exception, spider)
