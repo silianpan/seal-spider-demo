@@ -51,8 +51,8 @@ cookies = {
 }
 
 
-class ChlLawXa01(scrapy.Spider):
-    name = 'chlLawXa01'
+class ChlLaw(scrapy.Spider):
+    name = 'chlLaw'
 
     # start_urls = [  # 另外一种写法，无需定义start_requests方法
     #     'http://lab.scrapyd.cn/page/1/',
