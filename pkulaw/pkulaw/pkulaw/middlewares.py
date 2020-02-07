@@ -9,7 +9,7 @@ import logging
 import re
 
 import requests
-from fake_useragent import UserAgent
+from pkulaw.ua.user_agent import UserAgent
 from pkulaw.utils import is_expired
 from scrapy import signals
 
@@ -174,7 +174,7 @@ class RandomUserAgentMiddleware(object):
         self.user_agent = UserAgent()
 
     def process_request(self, request, spider):
-        ua = self.user_agent.random
+        ua = self.user_agent.rget
         logger.debug('======使用User-Agent：' + str(ua) + '======')
         request.headers.setdefault('User-Agent', ua)
 
