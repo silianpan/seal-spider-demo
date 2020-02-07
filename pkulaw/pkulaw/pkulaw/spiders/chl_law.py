@@ -37,13 +37,13 @@ Search_Mode = 'accurate'
 referer_proto = 'http://www.pkulaw.cn/cluster_call_form.aspx?Db=protocol&menu_item=lfbj_all&EncodingName=&keyword=&range=name&'
 
 common_headers = {
-    'Origin': 'http://www.pkulaw.cn',
-    'Host': 'www.pkulaw.cn',
     'Accept': '*/*',
-    'Accept-Encoding': 'gzip, deflate, br',
+    'Accept-Encoding': 'gzip, deflate',
     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7',
-    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-    'X-Requested-With': 'XMLHttpRequest'
+    'Connection': 'keep-alive',
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Host': 'www.pkulaw.cn',
+    'Origin': 'http://www.pkulaw.cn'
 }
 common_cookies = {
     'isCheck': 'ValidateSuccess_126',
