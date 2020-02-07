@@ -45,6 +45,15 @@ common_headers = {
     'Host': 'www.pkulaw.cn',
     'Origin': 'http://www.pkulaw.cn'
 }
+common_detail_headers = {
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+    'Accept-Encoding': 'gzip, deflate',
+    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7',
+    'Cache-Control': 'max-age=0',
+    'Connection': 'keep-alive',
+    'Host': 'www.pkulaw.cn',
+    'Upgrade-Insecure-Requests': '1'
+}
 common_cookies = {
     'isCheck': 'ValidateSuccess_126',
     'codeCompare': 'OK_126'
@@ -239,7 +248,7 @@ class ChlLaw(scrapy.Spider):
         for href in href_list:
             href = response.urljoin(href)
             if re.match(pattern_article, href):
-                yield scrapy.Request(url=href, headers=headers, cookies=cookies, callback=self.parse_detail,
+                yield scrapy.Request(url=href, headers=common_detail_headers, cookies=cookies, callback=self.parse_detail,
                                      dont_filter=False)
 
         pages = response.css('.main-top4-1 > table > tr:first-child > td > span::text').extract_first()
