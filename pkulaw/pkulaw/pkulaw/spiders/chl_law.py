@@ -224,7 +224,8 @@ class ChlLaw(scrapy.Spider):
                 'formdata': formdata,
                 'cookies': common_cookies
             }
-            yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=common_cookies, formdata=formdata,
+            yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=common_cookies,
+                                     formdata=formdata,
                                      callback=self.parse, meta={'callback_options': callback_options}, dont_filter=True)
 
     # 如果是简写初始url，此方法名必须为：parse
@@ -252,7 +253,8 @@ class ChlLaw(scrapy.Spider):
                 next_formdata['page_count'] = str(page_size)
                 yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=cookies,
                                          formdata=next_formdata,
-                                         callback=self.parse, meta={'callback_options': callback_options}, dont_filter=True)
+                                         callback=self.parse, meta={'callback_options': callback_options},
+                                         dont_filter=True)
 
     def parse_detail(self, response):
         title = response.css('table#tbl_content_main > tr:first-child > td > span > strong::text').extract_first()
@@ -289,13 +291,15 @@ class ChlLaw(scrapy.Spider):
         ret['content'] = main_content.strip()
 
         # 保存mysql
-        if (u'现行有效' in ret['time_valid'] or u'尚未生效' in ret['time_valid']) and (u'任免' not in ret['force_level'] and
-                                                                               u'工作文件' not in ret[
-                                                                                   'force_level'] and u'工作答复' not in
-                                                                               ret['force_level'] and u'部门工作文件' not in
-                                                                               ret['force_level'] and
-                                                                               u'行政许可批复' not in ret[
-                                                                                   'force_level']):
+        # 1. 时效性（是）：现行有效、尚未生效
+        # 2. 效力级别（不是）：任免、工作文件、工作答复、部门工作文件、行政许可批复
+        # 3. 具有截止日期字段：立法背景资料
+        if (u'现行有效' in ret['time_valid'] or u'尚未生效' in ret['time_valid'] or ret['deadline']) and (
+                u'任免' not in ret['force_level'] and
+                u'工作文件' not in ret['force_level'] and
+                u'工作答复' not in ret['force_level'] and
+                u'部门工作文件' not in ret['force_level'] and
+                u'行政许可批复' not in ret['force_level']):
             if 'appr_dept' not in ret:
                 ret['appr_dept'] = ''
             if 'appr_date' not in ret:
