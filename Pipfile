@@ -21,6 +21,7 @@ scrapy = "*"
 pytesseract = "*"
 opencv-python = "*"
 fake-useragent = "*"
+scrapy-redis = "*"
 
 [requires]
 python_version = "3.7"
