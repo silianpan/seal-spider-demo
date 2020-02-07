@@ -235,7 +235,9 @@ class ChlLaw(scrapy.Spider):
             }
             yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=common_cookies,
                                      formdata=formdata,
-                                     callback=self.parse, meta={'callback_options': callback_options}, dont_filter=True)
+                                     callback=self.parse,
+                                     meta={'callback_options': callback_options, 'dont_redirect': True,
+                                           'handle_httpstatus_list': [302]}, dont_filter=True)
 
     # 如果是简写初始url，此方法名必须为：parse
     def parse(self, response):
@@ -248,8 +250,9 @@ class ChlLaw(scrapy.Spider):
         for href in href_list:
             href = response.urljoin(href)
             if re.match(pattern_article, href):
-                yield scrapy.Request(url=href, headers=common_detail_headers, cookies=cookies, callback=self.parse_detail,
-                                     dont_filter=False)
+                yield scrapy.Request(url=href, headers=common_detail_headers, cookies=cookies,
+                                     callback=self.parse_detail,
+                                     meta={'dont_redirect': True, 'handle_httpstatus_list': [302]}, dont_filter=False)
 
         pages = response.css('.main-top4-1 > table > tr:first-child > td > span::text').extract_first()
         pages_ret = re.match(pattern_page, pages)
@@ -262,7 +265,9 @@ class ChlLaw(scrapy.Spider):
                 next_formdata['page_count'] = str(page_size)
                 yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=cookies,
                                          formdata=next_formdata,
-                                         callback=self.parse, meta={'callback_options': callback_options},
+                                         callback=self.parse,
+                                         meta={'callback_options': callback_options, 'dont_redirect': True,
+                                               'handle_httpstatus_list': [302]},
                                          dont_filter=True)
 
     def parse_detail(self, response):
