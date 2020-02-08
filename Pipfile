@@ -23,6 +23,7 @@ opencv-python = "*"
 fake-useragent = "*"
 scrapy-redis = "*"
 scrapy-redis-bloomfilter = "*"
+scrapyd = "*"
 
 [requires]
 python_version = "3.7"
