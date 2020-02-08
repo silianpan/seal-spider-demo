@@ -308,20 +308,13 @@ class ChlLaw(scrapy.Spider):
         # 1. 时效性（是）：现行有效、尚未生效
         # 2. 效力级别（不是）：任免、工作文件、工作答复、部门工作文件、行政许可批复
         # 3. 具有截止日期字段：立法背景资料
-        if (u'现行有效' in ret['time_valid'] or u'尚未生效' in ret['time_valid'] or ret['deadline']) and (
-                u'任免' not in ret['force_level'] and
-                u'工作文件' not in ret['force_level'] and
-                u'工作答复' not in ret['force_level'] and
-                u'部门工作文件' not in ret['force_level'] and
-                u'行政许可批复' not in ret['force_level']):
-            if 'appr_dept' not in ret:
-                ret['appr_dept'] = ''
-            if 'appr_date' not in ret:
-                ret['appr_date'] = ''
-            if 'deadline' not in ret:
-                ret['deadline'] = ''
-            if 'type' not in ret:
-                ret['type'] = ''
-            if 'pub_no' not in ret:
-                ret['pub_no'] = ''
+        tmp_time_valid = ret.get('time_valid', '')
+        tmp_deadline = ret.get('deadline', False)
+        tmp_force_level = ret.get('force_level', '')
+        if (u'现行有效' in tmp_time_valid or u'尚未生效' in tmp_time_valid or tmp_deadline) and (
+                u'任免' not in tmp_force_level and
+                u'工作文件' not in tmp_force_level and
+                u'工作答复' not in tmp_force_level and
+                u'部门工作文件' not in tmp_force_level and
+                u'行政许可批复' not in tmp_force_level):
             yield ret
