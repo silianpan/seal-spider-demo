@@ -296,8 +296,8 @@ class ChlLaw(scrapy.Spider):
                         ret['law_type'] = td.css('a::text').extract_first().strip()
                     elif u'类别' in strong:
                         ret['type'] = td.css('a::text').extract_first().strip()
-                    elif u'截止日期' in strong.strip():
-                        ret['deadline'] = td.text().strip()
+                    elif u'截止日期' in strong:
+                        ret['deadline'] = td.xpath('./text()').extract_first().strip()
 
         ret['url'] = response.url
         ret['title'] = title.strip()
