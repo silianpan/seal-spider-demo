@@ -10,6 +10,7 @@ import scrapy
 
 class PkulawItem(scrapy.Item):
     # define the fields for your item here like:
+    collection = table = 'law'
     title = scrapy.Field()
     pub_dept = scrapy.Field()
     pub_no = scrapy.Field()
