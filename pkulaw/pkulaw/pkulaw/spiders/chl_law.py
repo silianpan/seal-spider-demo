@@ -304,6 +304,8 @@ class ChlLaw(scrapy.Spider):
         ret['url'] = response.url
         ret['title'] = title.strip() if title else response.css('title::text').get()
         main_content = response.css('.Content > #div_content').extract_first()
+        if main_content is None:
+            print(response.body.decode('utf8') if response.body else response.body)
         ret['content'] = main_content.strip()
 
         # 保存mysql
