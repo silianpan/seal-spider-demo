@@ -246,11 +246,13 @@ class ChlLaw(scrapy.Spider):
         formdata = callback_options.get('formdata')
         cookies = callback_options.get('cookies')
 
+        tmp_detail_headers = common_detail_headers.copy()
+        tmp_detail_headers['Referer'] = headers['Referer']
         href_list = response.css('a.main-ljwenzi::attr(href)').extract()
         for href in href_list:
             href = response.urljoin(href)
             if re.match(pattern_article, href):
-                yield scrapy.Request(url=href, headers=common_detail_headers, cookies=cookies,
+                yield scrapy.Request(url=href, headers=tmp_detail_headers, cookies=cookies,
                                      callback=self.parse_detail,
                                      meta={'dont_redirect': True, 'handle_httpstatus_list': [302]}, dont_filter=False)
 
