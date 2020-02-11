@@ -271,8 +271,8 @@ class ChlLaw(scrapy.Spider):
                                          dont_filter=True)
 
     def parse_detail(self, response):
-        title = response.css('table#tbl_content_main > tr:first-child > td > span > strong::text').extract_first()
-        li_list = response.css('table#tbl_content_main > tr')
+        title = response.css('table#tbl_content_main > tbody > tr:first-child > td > span > strong::text').extract_first()
+        li_list = response.css('table#tbl_content_main > tbody > tr')
         ret = PkulawItem()
         for li in li_list:
             td_list = li.css('td')
@@ -300,7 +300,7 @@ class ChlLaw(scrapy.Spider):
                         ret['deadline'] = td.xpath('./text()').extract_first().strip()
 
         ret['url'] = response.url
-        ret['title'] = title.strip()
+        ret['title'] = title.strip() if title else response.css('title::text').get()
         main_content = response.css('.Content > #div_content').extract_first()
         ret['content'] = main_content.strip()
 
