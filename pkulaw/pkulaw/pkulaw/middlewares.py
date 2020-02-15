@@ -149,20 +149,36 @@ class ProxyMiddleware(object):
 
     def process_response(self, request, response, spider):
         url = request.url
+        # 自己的url，返回错误
         if (url == self.start_url or re.match(self.pattern_article, url)) and response.status != 200:
-            if response.status in self.retry_http_codes:
-                # 获取重试次数
-                retries = request.meta.get('retry_times', 0)
-                if retries >= self.max_retry_times:
-                    # 更新代理列表，使用新代理
-                    self.proxy_list = self.get_proxy_list()
-                    new_proxy = self.get_random_proxy()
-                    logger.debug('======已经达到最大重试次数，使用新代理：' + str(new_proxy) + '======')
-                    request.meta['proxy'] = 'http://{proxy}'.format(proxy=new_proxy)
-                    return request
-            logger.warning('======返回异常，重试使用原代理：' + request.meta['proxy'] + '======')
+            logger.error('############status: ' + str(response.status) + '###############')
+            logger.error('############flags: ' + str(response.flags) + '###############')
+            logger.error('############body: ' + str(response.body.decode('utf8')) + '###############')
+            # 1. IP被封了，更新代理
+            if response.status == 403:
+                self.update_proxy(request)
+                return request
+            # 2. 获取重试次数，大于最大重试次数，更新代理
+            # if response.status in self.retry_http_codes:
+            retries = request.meta.get('retry_times', 0)
+            if retries >= self.max_retry_times:
+                self.update_proxy(request)
+                return request
+            logger.warning('======返回异常' + str(response.status) + '，重试使用原代理：' + request.meta['proxy'] + '======')
             return request
         return response
+
+    def update_proxy(self, request):
+        """
+        重新通过api获取代理，更新代理
+        :param request:
+        :return:
+        """
+        # 重新通过api获取代理
+        self.proxy_list = self.get_proxy_list()
+        new_proxy = self.get_random_proxy()
+        logger.debug('======已经达到最大重试次数或者IP被封，使用新代理：' + str(new_proxy) + '======')
+        request.meta['proxy'] = 'http://{proxy}'.format(proxy=new_proxy)
 
 
 class RandomUserAgentMiddleware(object):
@@ -171,7 +187,7 @@ class RandomUserAgentMiddleware(object):
     """
 
     def __init__(self):
-        self.user_agent = UserAgent()
+        self.user_agent = UserAgent('chrome')
 
     def process_request(self, request, spider):
         ua = self.user_agent.rget
