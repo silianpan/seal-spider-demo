@@ -11,10 +11,13 @@
     一种是常量start_urls，并且需要定义一个方法parse（）
     另一种是直接定义一个方法：star_requests()
 """
+import logging
 import re
 
 import scrapy
 from pkulaw.items import PkulawItem
+
+logger = logging.getLogger(__name__)
 
 pattern_article = re.compile(u'^http://www.pkulaw.cn/fulltext_form.aspx\?.+$')
 pattern_page = re.compile(u'^.*第\s+(\d+)\s+.*共\s+(\d+)\s+.*$')
@@ -305,7 +308,7 @@ class ChlLaw(scrapy.Spider):
         ret['title'] = title.strip() if title else response.css('title::text').get()
         main_content = response.css('.Content > #div_content').extract_first()
         if main_content is None:
-            print(response.body.decode('utf8') if response.body else response.body)
+            logger.error('############body: ' + str(response.body.decode('utf8') if response.body else response.body) + '###############')
         ret['content'] = main_content.strip()
 
         # 保存mysql

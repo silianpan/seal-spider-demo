@@ -153,7 +153,7 @@ class ProxyMiddleware(object):
         if (url == self.start_url or re.match(self.pattern_article, url)) and response.status != 200:
             logger.error('############status: ' + str(response.status) + '###############')
             logger.error('############flags: ' + str(response.flags) + '###############')
-            logger.error('############body: ' + str(response.body.decode('utf8')) + '###############')
+            logger.error('############body: ' + str(response.body.decode('utf8') if response.body else response.body) + '###############')
             # 1. IP被封了，更新代理
             if response.status == 403:
                 self.update_proxy(request)
