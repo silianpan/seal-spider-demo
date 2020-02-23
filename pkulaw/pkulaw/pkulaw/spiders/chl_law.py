@@ -254,12 +254,11 @@ class ChlLaw(scrapy.Spider):
         # href_list = response.css('a.main-ljwenzi::attr(href)').extract()
 
         sub_title_items = response.xpath('//span[@style="color:#727272;font-size:13px;"]')
-        for sub_title in sub_title_items[:1]:
+        for sub_title in sub_title_items:
             sub_title_text = sub_title.xpath('string(.)').get()
             if u'失效' not in sub_title_text and u'已被修改' not in sub_title_text and u'部分失效' not in sub_title_text:
                 href = sub_title.xpath('./../../preceding-sibling::tr[1]//a[@class="main-ljwenzi"]/@href').get()
                 title = sub_title.xpath('./../../preceding-sibling::tr[1]//a[@class="main-ljwenzi"]/text()').get()
-                print(title[-2:], title[-4:])
                 # 需要进一步获取明细的条件
                 # 如果有标题，且不在xxx
                 if title and u'任免' not in title and title[-2:] not in [u'意见', u'答复', u'公告', u'报告', u'批复', u'通知', u'通告']:
