@@ -251,13 +251,25 @@ class ChlLaw(scrapy.Spider):
 
         tmp_detail_headers = common_detail_headers.copy()
         tmp_detail_headers['Referer'] = headers['Referer']
-        href_list = response.css('a.main-ljwenzi::attr(href)').extract()
-        for href in href_list:
-            href = response.urljoin(href)
-            if re.match(pattern_article, href):
-                yield scrapy.Request(url=href, headers=tmp_detail_headers, cookies=cookies,
-                                     callback=self.parse_detail,
-                                     meta={'dont_redirect': True, 'handle_httpstatus_list': [302]}, dont_filter=False)
+        # href_list = response.css('a.main-ljwenzi::attr(href)').extract()
+
+        sub_title_items = response.xpath('//span[@style="color:#727272;font-size:13px;"]')
+        for sub_title in sub_title_items[:1]:
+            sub_title_text = sub_title.xpath('string(.)').get()
+            if u'失效' not in sub_title_text and u'已被修改' not in sub_title_text and u'部分失效' not in sub_title_text:
+                href = sub_title.xpath('./../../preceding-sibling::tr[1]//a[@class="main-ljwenzi"]/@href').get()
+                title = sub_title.xpath('./../../preceding-sibling::tr[1]//a[@class="main-ljwenzi"]/text()').get()
+                print(title[-2:], title[-4:])
+                # 需要进一步获取明细的条件
+                # 如果有标题，且不在xxx
+                if title and u'任免' not in title and title[-2:] not in [u'意见', u'答复', u'公告', u'报告', u'批复', u'通知', u'通告']:
+                    logger.info(title)
+                    href = response.urljoin(href)
+                    # if re.match(pattern_article, href):
+                    yield scrapy.Request(url=href, headers=tmp_detail_headers, cookies=cookies,
+                                         callback=self.parse_detail,
+                                         meta={'dont_redirect': True, 'handle_httpstatus_list': [302]},
+                                         dont_filter=False)
 
         pages = response.css('.main-top4-1 > table > tr:first-child > td > span::text').extract_first()
         pages_ret = re.match(pattern_page, pages)
