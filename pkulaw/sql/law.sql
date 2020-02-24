@@ -1,10 +1,10 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : 113.62.127.199
+ Source Server         : localhost
  Source Server Type    : MySQL
  Source Server Version : 80013
- Source Host           : 113.62.127.199:3306
+ Source Host           : localhost:3306
  Source Schema         : pkulaw
 
  Target Server Type    : MySQL
