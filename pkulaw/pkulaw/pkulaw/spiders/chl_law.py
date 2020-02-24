@@ -287,9 +287,9 @@ class ChlLaw(scrapy.Spider):
                                          dont_filter=True)
 
     def parse_detail(self, response):
-        title = response.css('table#tbl_content_main > tbody > tr:first-child > td > span > strong::text').extract_first()
+        title = response.css('table#tbl_content_main > tr:first-child > td > span > strong::text').extract_first()
         logger.info(title)
-        li_list = response.css('table#tbl_content_main > tbody > tr')
+        li_list = response.css('table#tbl_content_main > tr')
         ret = PkulawItem()
         for li in li_list:
             td_list = li.css('td')
