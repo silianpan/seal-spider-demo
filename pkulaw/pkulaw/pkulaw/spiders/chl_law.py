@@ -16,6 +16,7 @@ import re
 
 import scrapy
 from pkulaw.items import PkulawItem
+from scrapy.exceptions import DropItem
 
 logger = logging.getLogger(__name__)
 
@@ -320,6 +321,7 @@ class ChlLaw(scrapy.Spider):
         main_content = response.css('.Content > #div_content').extract_first()
         if main_content is None:
             logger.error('############body: ' + str(response.body.decode('utf8') if response.body else response.body) + '###############')
+            raise DropItem('main_content is None!')
         ret['content'] = main_content.strip()
         yield ret
 
