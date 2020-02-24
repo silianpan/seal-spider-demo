@@ -262,7 +262,6 @@ class ChlLaw(scrapy.Spider):
                 # 需要进一步获取明细的条件
                 # 如果有标题，且不在xxx
                 if title and u'任免' not in title and title[-2:] not in [u'意见', u'答复', u'公告', u'报告', u'批复', u'通知', u'通告']:
-                    logger.info(title)
                     href = response.urljoin(href)
                     # if re.match(pattern_article, href):
                     yield scrapy.Request(url=href, headers=tmp_detail_headers, cookies=cookies,
@@ -288,6 +287,7 @@ class ChlLaw(scrapy.Spider):
 
     def parse_detail(self, response):
         title = response.css('table#tbl_content_main > tbody > tr:first-child > td > span > strong::text').extract_first()
+        logger.info(title)
         li_list = response.css('table#tbl_content_main > tbody > tr')
         ret = PkulawItem()
         for li in li_list:
@@ -321,18 +321,19 @@ class ChlLaw(scrapy.Spider):
         if main_content is None:
             logger.error('############body: ' + str(response.body.decode('utf8') if response.body else response.body) + '###############')
         ret['content'] = main_content.strip()
+        yield ret
 
         # 保存mysql
         # 1. 时效性（是）：现行有效、尚未生效
         # 2. 效力级别（不是）：任免、工作文件、工作答复、部门工作文件、行政许可批复
         # 3. 具有截止日期字段：立法背景资料
-        tmp_time_valid = ret.get('time_valid', '')
-        tmp_deadline = ret.get('deadline', False)
-        tmp_force_level = ret.get('force_level', '')
-        if (u'现行有效' in tmp_time_valid or u'尚未生效' in tmp_time_valid or tmp_deadline) and (
-                u'任免' not in tmp_force_level and
-                u'工作文件' not in tmp_force_level and
-                u'工作答复' not in tmp_force_level and
-                u'部门工作文件' not in tmp_force_level and
-                u'行政许可批复' not in tmp_force_level):
-            yield ret
+        # tmp_time_valid = ret.get('time_valid', '')
+        # tmp_deadline = ret.get('deadline', False)
+        # tmp_force_level = ret.get('force_level', '')
+        # if (u'现行有效' in tmp_time_valid or u'尚未生效' in tmp_time_valid or tmp_deadline) and (
+        #         u'任免' not in tmp_force_level and
+        #         u'工作文件' not in tmp_force_level and
+        #         u'工作答复' not in tmp_force_level and
+        #         u'部门工作文件' not in tmp_force_level and
+        #         u'行政许可批复' not in tmp_force_level):
+        #     yield ret
