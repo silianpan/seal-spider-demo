@@ -38,7 +38,7 @@ menu_item_proto = 'lfbj_all'
 Search_Mode = 'accurate'
 referer_proto = 'http://www.pkulaw.cn/cluster_call_form.aspx?Db=protocol&menu_item=lfbj_all&EncodingName=&keyword=&range=name&'
 
-login_headers = {
+login_logout_headers = {
     'Accept': '*/*',
     'Accept-Encoding': 'gzip, deflate',
     'Accept-Language': 'zh-CN,en-US;q=0.7,en;q=0.3',
@@ -250,9 +250,21 @@ class ChlLaw(scrapy.Spider):
 
     # 另外一种初始链接写法
     def start_requests(self):
-        # 登陆请求
-        # yield scrapy.Request(url=self.logout_url, headers=login_headers, callback=self.login_after)
-        # yield scrapy.Request(url=self.login_url, headers=login_headers, callback=self.login_after)
+        # 注销用户请求
+        yield scrapy.Request(url=self.logout_url, headers=login_logout_headers, callback=self.logout_after)
+
+    def logout_after(self, response):
+        # 登陆用户请求
+        yield scrapy.Request(url=self.login_url, headers=login_logout_headers, callback=self.login_after)
+
+    def login_after(self, response):
+        # for test
+        # print(response.body.decode('gbk'))
+        # test_href = 'http://www.pkulaw.cn/fulltext_form.aspx?Db=chl&Gid=32b8ec09754aab05bdfb&keyword=&EncodingName=&Search_Mode=&Search_IsTitle=0'
+        # yield scrapy.Request(url=test_href, headers=common_detail_headers, cookies=common_cookies,
+        #                      callback=self.parse_detail,
+        #                      meta={'dont_redirect': True, 'handle_httpstatus_list': [302]},
+        #                      dont_filter=False)
 
         for option_item in all_options:
             headers = common_headers.copy()
@@ -268,9 +280,6 @@ class ChlLaw(scrapy.Spider):
                                      callback=self.parse,
                                      meta={'callback_options': callback_options, 'dont_redirect': True,
                                            'handle_httpstatus_list': [302]}, dont_filter=True)
-
-    # def login_after(self, response):
-    #     print(response.body.decode('gbk'))
 
     # 如果是简写初始url，此方法名必须为：parse
     def parse(self, response):
