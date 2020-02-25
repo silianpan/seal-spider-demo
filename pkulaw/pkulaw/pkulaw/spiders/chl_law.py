@@ -370,12 +370,12 @@ class ChlLaw(scrapy.Spider):
         main_content = response.css('.Content > #div_content').extract_first()
         if main_content is None:
             logger.error('############body: ' + str(response.body.decode('utf8') if response.body else response.body) + '###############')
-            raise DropItem('main_content is None!')
+            # raise DropItem('main_content is None!')
         if u'还不是用户？' in main_content:
             scrapy.Request(url=self.login_url, headers=login_logout_headers, cookies=common_cookies)
             # raise DropItem('main_content is not login!')
             logger.info('############main_content is not login!###############')
-        ret['content'] = main_content.strip()
+        ret['content'] = main_content.strip() if main_content else main_content
         yield ret
 
         # 保存mysql

@@ -41,6 +41,8 @@ class PkulawPipeline(object):
     #     return item
 
     def process_item(self, ret, spider):
+        if not ret.get('content', False):
+            raise DropItem('content is None!')
         # sql语句
         insert_sql = """
         INSERT INTO law(title, pub_dept, pub_no, pub_date, law_type, force_level, time_valid, impl_date, content, url, type, deadline, appr_dept, appr_date) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
