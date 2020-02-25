@@ -240,6 +240,7 @@ class ChlLaw(scrapy.Spider):
         super(ChlLaw, self).__init__(*args, **kwargs)
         self.start_url = settings.get('START_URL')
         self.login_url = settings.get('LOGIN_URL')
+        self.logout_url = settings.get('LOGOUT_URL')
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
@@ -250,7 +251,9 @@ class ChlLaw(scrapy.Spider):
     # 另外一种初始链接写法
     def start_requests(self):
         # 登陆请求
-        # scrapy.Request(url=self.login_url, headers=login_headers, callback=self.login_after)
+        # yield scrapy.Request(url=self.logout_url, headers=login_headers, callback=self.login_after)
+        # yield scrapy.Request(url=self.login_url, headers=login_headers, callback=self.login_after)
+
         for option_item in all_options:
             headers = common_headers.copy()
             headers['Referer'] = option_item['Referer']
@@ -265,6 +268,9 @@ class ChlLaw(scrapy.Spider):
                                      callback=self.parse,
                                      meta={'callback_options': callback_options, 'dont_redirect': True,
                                            'handle_httpstatus_list': [302]}, dont_filter=True)
+
+    # def login_after(self, response):
+    #     print(response.body.decode('gbk'))
 
     # 如果是简写初始url，此方法名必须为：parse
     def parse(self, response):

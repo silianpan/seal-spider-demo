@@ -58,6 +58,7 @@ ABUYUN_PROXY_USER = 'HV8L10RK3638731D'
 ABUYUN_PROXY_PASS = '823956ADA0D112B7'
 START_URL = 'http://www.pkulaw.cn/doSearch.ashx'
 LOGIN_URL = 'http://www.pkulaw.cn/vip_login/CheckLogin.ashx?t=1&u=18582055881&p=asdf@123&n=1582595656673&menu_item=law'
+LOGOUT_URL = 'http://www.pkulaw.cn/vip_login/CheckLogin.ashx?t=2&n=1582602847019&menu_item=law'
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': None,
     # 'pkulaw.middlewares.ZhimaProxyMiddleware': 543,
