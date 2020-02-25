@@ -52,11 +52,12 @@ DOWNLOAD_DELAY = 0.2
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-ZHIMA_PROXY_URL = 'zhima_http_proxy_url'
+ZHIMA_PROXY_URL = 'http://http.tiqu.alicdns.com/getip3?num=1&type=2&pro=&city=0&yys=0&port=1&time=1&ts=1&ys=0&cs=1&lb=1&sb=0&pb=4&mr=1&regions=&gm=4'
 ABUYUN_PROXY_SERVER = 'http://http-dyn.abuyun.com:9020'
-ABUYUN_PROXY_USER = 'abuyun_proxy_user'
-ABUYUN_PROXY_PASS = 'abuyun_proxy_pass'
+ABUYUN_PROXY_USER = 'HV8L10RK3638731D'
+ABUYUN_PROXY_PASS = '823956ADA0D112B7'
 START_URL = 'http://www.pkulaw.cn/doSearch.ashx'
+LOGIN_URL = 'http://www.pkulaw.cn/vip_login/CheckLogin.ashx?t=1&u=18582055881&p=asdf@123&n=1582595656673&menu_item=law'
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': None,
     # 'pkulaw.middlewares.ZhimaProxyMiddleware': 543,
@@ -105,11 +106,11 @@ RETRY_TIMES = 5
 RETRY_HTTP_CODES = [302, 403, 502, 500, 404]
 
 # MySQL
-MYSQL_HOST = 'localhost'
+MYSQL_HOST = '113.62.127.199'
 MYSQL_PORT = 3306
 MYSQL_DATABASE = 'pkulaw_new'
 MYSQL_USER = 'root'
-MYSQL_PASSWORD = 'password'
+MYSQL_PASSWORD = 'Asdf@123'
 
 # scrapy-redis
 # 调度器和去重的类替换为scrapy-redis的类
@@ -122,7 +123,7 @@ BLOOMFILTER_HASH_NUMBER = 6
 # Bloom Filter的bit参数，默认30，占用128M空间，去重量级1亿
 BLOOMFILTER_BIT = 30
 # redis连接信息
-REDIS_URL = 'redis://:auth@localhost:6379'
+REDIS_URL = 'redis://:asdf123@39.99.189.72:6379'
 # 爬取全部完成后，不自动清空爬取队列和去重指纹集合
 # 强制中断爬虫的运行，爬取队列和去重指纹集合是不会自动清空的
 SCHEDULER_PERSIST = True

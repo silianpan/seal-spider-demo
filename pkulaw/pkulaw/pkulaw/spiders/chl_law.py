@@ -23,8 +23,6 @@ logger = logging.getLogger(__name__)
 pattern_article = re.compile(u'^http://www.pkulaw.cn/fulltext_form.aspx\?.+$')
 pattern_page = re.compile(u'^.*第\s+(\d+)\s+.*共\s+(\d+)\s+.*$')
 
-start_url = 'http://www.pkulaw.cn/doSearch.ashx'
-
 Db = 'chl'
 clust_db = 'chl'
 menu_item = 'law'
@@ -39,6 +37,16 @@ clust_db_proto = 'protocol'
 menu_item_proto = 'lfbj_all'
 Search_Mode = 'accurate'
 referer_proto = 'http://www.pkulaw.cn/cluster_call_form.aspx?Db=protocol&menu_item=lfbj_all&EncodingName=&keyword=&range=name&'
+
+login_headers = {
+    'Accept': '*/*',
+    'Accept-Encoding': 'gzip, deflate',
+    'Accept-Language': 'zh-CN,en-US;q=0.7,en;q=0.3',
+    'Connection': 'keep-alive',
+    'Host': 'www.pkulaw.cn',
+    'Referer': 'http://www.pkulaw.cn/vip_login/vip_login.aspx?menu_item=law&EncodingName=',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:73.0) Gecko/20100101 Firefox/73.0'
+}
 
 common_headers = {
     'Accept': '*/*',
@@ -60,7 +68,9 @@ common_detail_headers = {
 }
 common_cookies = {
     'isCheck': 'ValidateSuccess_126',
-    'codeCompare': 'OK_126'
+    'codeCompare': 'OK_126',
+    'QINGCLOUDELB': '31b817f86975363201940f8e0a50b7bee13319b57ab5f3b439cc153975d86b02',
+    'User_User': 'phone2020022509122640225'
 }
 
 all_options = [
@@ -226,8 +236,21 @@ all_options = [
 class ChlLaw(scrapy.Spider):
     name = 'chlLaw'
 
+    def __init__(self, settings, *args, **kwargs):
+        super(ChlLaw, self).__init__(*args, **kwargs)
+        self.start_url = settings.get('START_URL')
+        self.login_url = settings.get('LOGIN_URL')
+
+    @classmethod
+    def from_crawler(cls, crawler, *args, **kwargs):
+        spider = cls(crawler.settings, *args, **kwargs)
+        spider._set_crawler(crawler)
+        return spider
+
     # 另外一种初始链接写法
     def start_requests(self):
+        # 登陆请求
+        # scrapy.Request(url=self.login_url, headers=login_headers, callback=self.login_after)
         for option_item in all_options:
             headers = common_headers.copy()
             headers['Referer'] = option_item['Referer']
@@ -237,7 +260,7 @@ class ChlLaw(scrapy.Spider):
                 'formdata': formdata,
                 'cookies': common_cookies
             }
-            yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=common_cookies,
+            yield scrapy.FormRequest(url=self.start_url, method='POST', headers=headers, cookies=common_cookies,
                                      formdata=formdata,
                                      callback=self.parse,
                                      meta={'callback_options': callback_options, 'dont_redirect': True,
@@ -279,7 +302,7 @@ class ChlLaw(scrapy.Spider):
                 next_formdata = formdata.copy()
                 next_formdata['aim_page'] = str(current_index)
                 next_formdata['page_count'] = str(page_size)
-                yield scrapy.FormRequest(url=start_url, method='POST', headers=headers, cookies=cookies,
+                yield scrapy.FormRequest(url=self.start_url, method='POST', headers=headers, cookies=cookies,
                                          formdata=next_formdata,
                                          callback=self.parse,
                                          meta={'callback_options': callback_options, 'dont_redirect': True,
