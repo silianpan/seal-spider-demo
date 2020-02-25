@@ -364,6 +364,8 @@ class ChlLaw(scrapy.Spider):
         if main_content is None:
             logger.error('############body: ' + str(response.body.decode('utf8') if response.body else response.body) + '###############')
             raise DropItem('main_content is None!')
+        if u'还不是用户？' in main_content:
+            scrapy.Request(url=self.login_url, headers=login_logout_headers, cookies=common_cookies)
         ret['content'] = main_content.strip()
         yield ret
 
