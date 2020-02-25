@@ -396,8 +396,16 @@ class ChlLaw(scrapy.Spider):
         #     yield ret
 
     def repeat_logout_login(self):
+        logger.info('############repeat_logout_login!###############')
         yield scrapy.Request(url=self.logout_url + '&_=' + str(uuid.uuid4()), headers=login_logout_headers, cookies=common_cookies,
                              callback=self.repeat_login)
 
     def repeat_login(self, response):
-        yield scrapy.Request(url=self.login_url + '&_=' + str(uuid.uuid4()), headers=login_logout_headers, cookies=common_cookies)
+        logger.info('############repeat_logout_after: ' + str(
+            response.body.decode('gbk') if response.body else response.body) + '###############')
+        yield scrapy.Request(url=self.login_url + '&_=' + str(uuid.uuid4()), headers=login_logout_headers, cookies=common_cookies,
+                             callback=self.repeat_login_after)
+
+    def repeat_login_after(self, response):
+        logger.info('############repeat_login_after: ' + str(
+            response.body.decode('gbk') if response.body else response.body) + '###############')
