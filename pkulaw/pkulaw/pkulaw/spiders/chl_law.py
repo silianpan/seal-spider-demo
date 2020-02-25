@@ -14,6 +14,7 @@
 import datetime
 import logging
 import re
+import uuid
 
 import scrapy
 from pkulaw.items import PkulawItem
@@ -255,13 +256,13 @@ class ChlLaw(scrapy.Spider):
     # 另外一种初始链接写法
     def start_requests(self):
         # 注销用户请求
-        yield scrapy.Request(url=self.logout_url, headers=login_logout_headers, cookies=common_cookies, callback=self.logout_after)
+        yield scrapy.Request(url=self.logout_url + '&_=' + str(uuid.uuid4()), headers=login_logout_headers, cookies=common_cookies, callback=self.logout_after)
 
     def logout_after(self, response):
         logger.info('############logout_after: ' + str(
             response.body.decode('gbk') if response.body else response.body) + '###############')
         # 登陆用户请求
-        yield scrapy.Request(url=self.login_url, headers=login_logout_headers, cookies=common_cookies, callback=self.login_after)
+        yield scrapy.Request(url=self.login_url + '&_=' + str(uuid.uuid4()), headers=login_logout_headers, cookies=common_cookies, callback=self.login_after)
 
     def login_after(self, response):
         logger.info('############login_after: ' + str(
@@ -372,9 +373,10 @@ class ChlLaw(scrapy.Spider):
             logger.error('############body: ' + str(response.body.decode('utf8') if response.body else response.body) + '###############')
             # raise DropItem('main_content is None!')
         if u'还不是用户？' in main_content:
-            scrapy.Request(url=self.login_url, headers=login_logout_headers, cookies=common_cookies)
             # raise DropItem('main_content is not login!')
             logger.info('############main_content is not login!###############')
+            yield self.repeat_logout_login()
+
         ret['content'] = main_content.strip() if main_content else main_content
         yield ret
 
@@ -392,3 +394,10 @@ class ChlLaw(scrapy.Spider):
         #         u'部门工作文件' not in tmp_force_level and
         #         u'行政许可批复' not in tmp_force_level):
         #     yield ret
+
+    def repeat_logout_login(self):
+        yield scrapy.Request(url=self.logout_url + '&_=' + str(uuid.uuid4()), headers=login_logout_headers, cookies=common_cookies,
+                             callback=self.repeat_login)
+
+    def repeat_login(self, response):
+        yield scrapy.Request(url=self.login_url + '&_=' + str(uuid.uuid4()), headers=login_logout_headers, cookies=common_cookies)
