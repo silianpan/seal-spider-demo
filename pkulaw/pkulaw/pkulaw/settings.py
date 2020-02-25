@@ -52,7 +52,7 @@ DOWNLOAD_DELAY = 0.2
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-ZHIMA_PROXY_URL = 'http://http.tiqu.alicdns.com/getip3?num=1&type=2&pro=&city=0&yys=0&port=1&time=1&ts=1&ys=0&cs=1&lb=1&sb=0&pb=4&mr=1&regions=&gm=4'
+ZHIMA_PROXY_URL = 'http://http.tiqu.alicdns.com/getip3?num=1&type=2&pro=&city=0&yys=0&port=1&pack=81983&ts=1&ys=0&cs=1&lb=1&sb=0&pb=4&mr=1&regions=&gm=4'
 ABUYUN_PROXY_SERVER = 'http://http-dyn.abuyun.com:9020'
 ABUYUN_PROXY_USER = 'HV8L10RK3638731D'
 ABUYUN_PROXY_PASS = '823956ADA0D112B7'
@@ -61,7 +61,7 @@ LOGIN_URL = 'http://www.pkulaw.cn/vip_login/CheckLogin.ashx?t=1&u=18582055881&p=
 LOGOUT_URL = 'http://www.pkulaw.cn/vip_login/CheckLogin.ashx?t=2&n=1582602847019&menu_item=law'
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': None,
-    # 'pkulaw.middlewares.ZhimaProxyMiddleware': 543,
+    # 'pkulaw.middlewares.ZhimaProxyMiddleware': 11,
     'pkulaw.middlewares.AbuyunProxyMiddleware': 11,
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
     'pkulaw.middlewares.RandomUserAgentMiddleware': 10,
