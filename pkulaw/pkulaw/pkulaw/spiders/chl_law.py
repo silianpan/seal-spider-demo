@@ -258,10 +258,14 @@ class ChlLaw(scrapy.Spider):
         yield scrapy.Request(url=self.logout_url, headers=login_logout_headers, cookies=common_cookies, callback=self.logout_after)
 
     def logout_after(self, response):
+        logger.info('############logout_after: ' + str(
+            response.body.decode('gbk') if response.body else response.body) + '###############')
         # 登陆用户请求
         yield scrapy.Request(url=self.login_url, headers=login_logout_headers, cookies=common_cookies, callback=self.login_after)
 
     def login_after(self, response):
+        logger.info('############login_after: ' + str(
+            response.body.decode('gbk') if response.body else response.body) + '###############')
         # for test
         # print(response.body.decode('gbk'))
         # test_href = 'http://www.pkulaw.cn/fulltext_form.aspx?Db=chl&Gid=32b8ec09754aab05bdfb&keyword=&EncodingName=&Search_Mode=&Search_IsTitle=0'
