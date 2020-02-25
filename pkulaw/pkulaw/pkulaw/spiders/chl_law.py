@@ -356,7 +356,10 @@ class ChlLaw(scrapy.Spider):
                     elif u'效力级别' in strong:
                         ret['force_level'] = td.css('a::text').extract_first().strip()
                     elif u'法规类别' in strong:
-                        ret['law_type'] = td.css('a::text').extract_first().strip()
+                        # 单个字符串
+                        # ret['law_type'] = td.css('a::text').extract_first().strip()
+                        # 多种法规类别拼接
+                        ret['law_type'] = ",".join(td.css('a::text').extract())
                     elif u'类别' in strong:
                         ret['type'] = td.css('a::text').extract_first().strip()
                     elif u'截止日期' in strong:
