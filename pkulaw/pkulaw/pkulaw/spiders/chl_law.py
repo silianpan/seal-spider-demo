@@ -11,6 +11,7 @@
     一种是常量start_urls，并且需要定义一个方法parse（）
     另一种是直接定义一个方法：star_requests()
 """
+import datetime
 import logging
 import re
 
@@ -70,7 +71,10 @@ common_cookies = {
     'isCheck': 'ValidateSuccess_126',
     'codeCompare': 'OK_126',
     'QINGCLOUDELB': '31b817f86975363201940f8e0a50b7bee13319b57ab5f3b439cc153975d86b02',
-    'User_User': 'phone2020022509122640225'
+    'User_User': 'phone2020022509122640225',
+    'FWinCookie': '1',
+    'CheckIPAuto': '',
+    'CheckIPDate': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 }
 
 all_options = [
@@ -251,11 +255,11 @@ class ChlLaw(scrapy.Spider):
     # 另外一种初始链接写法
     def start_requests(self):
         # 注销用户请求
-        yield scrapy.Request(url=self.logout_url, headers=login_logout_headers, callback=self.logout_after)
+        yield scrapy.Request(url=self.logout_url, headers=login_logout_headers, cookies=common_cookies, callback=self.logout_after)
 
     def logout_after(self, response):
         # 登陆用户请求
-        yield scrapy.Request(url=self.login_url, headers=login_logout_headers, callback=self.login_after)
+        yield scrapy.Request(url=self.login_url, headers=login_logout_headers, cookies=common_cookies, callback=self.login_after)
 
     def login_after(self, response):
         # for test
