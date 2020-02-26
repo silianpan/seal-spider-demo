@@ -33,20 +33,26 @@ class Handler(BaseHandler):
         menu_title_list = response.doc('.menuTitle > dl > a').items()
         for menu_title in menu_title_list:
             menu_href = menu_title.attr('href')
-            self.crawl(menu_href, callback=self.item_page)
+            json_url = 'http://www.chinalaw.gov.cn/json/' + menu_href[-8:-5] + '_1.json'
+            print(json_url)
+            self.crawl(json_url, callback=self.item_page)
 
         menu_content_list = response.doc('.menuContent > li > a').items()
         for menu_content in menu_content_list:
             menu_content_href = menu_content.attr('href')
-            self.crawl(menu_content_href, callback=self.item_page)
+            json_url = 'http://www.chinalaw.gov.cn/json/' + menu_content_href[-8:-5] + '_1.json'
+            print(json_url)
+            self.crawl(json_url, callback=self.item_page)
 
     def item_page(self, response):
-        news_list = response.doc('.news_list > ul > li').items()
-        for news in news_list:
-            pub_date = news('dd').text()
-            news_href = news('dt > a').attr('href')
-            news_title = news('dt > a').text()
-            self.crawl(news_href, callback=self.detail_page, save={'pub_date': pub_date, 'title': news_title})
+        # news_list = response.doc('.news_list > ul > li').items()
+        # for news in news_list:
+        #     pub_date = news('dd').text()
+        #     news_href = news('dt > a').attr('href')
+        #     news_title = news('dt > a').text()
+        #     self.crawl(news_href, callback=self.detail_page, save={'pub_date': pub_date, 'title': news_title})
+        print(response.text)
+        print(response.json)
 
     @config(priority=2)
     def detail_page(self, response):
