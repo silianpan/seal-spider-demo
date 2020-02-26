@@ -26,3 +26,4 @@ class PkulawItem(scrapy.Item):
     appr_dept = scrapy.Field()
     appr_date = scrapy.Field()
     pdf_url = scrapy.Field()
+    remark = scrapy.Field()
