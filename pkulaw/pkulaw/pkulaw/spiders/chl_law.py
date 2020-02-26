@@ -275,14 +275,15 @@ class ChlLaw(scrapy.Spider):
         # yield self.login_after()
 
     def logout_after(self, response):
-        logger.info('############logout_after: ' + str(
-            response.body.decode('gbk') if response.body else response.body) + '###############')
-        # 登陆用户请求
-        yield scrapy.Request(url=self.login_url + '&_=' + str(uuid.uuid4()), headers=login_logout_headers, cookies=common_cookies, callback=self.login_after)
+        res_txt = str(response.body.decode('gbk') if response.body else response.body)
+        logger.info('############logout_after: ' + res_txt + '###############')
+        if 'dispLogin' in res_txt:
+            # 登陆用户请求
+            yield scrapy.Request(url=self.login_url + '&_=' + str(uuid.uuid4()), headers=login_logout_headers, cookies=common_cookies, callback=self.login_after)
 
     def login_after(self, response):
-        logger.info('############login_after: ' + str(
-            response.body.decode('gbk') if response.body else response.body) + '###############')
+        res_txt = str(response.body.decode('gbk') if response.body else response.body)
+        logger.info('############login_after: ' + res_txt + '###############')
 
         # for test
         # print(response.body.decode('gbk'))
@@ -292,20 +293,21 @@ class ChlLaw(scrapy.Spider):
         #                      meta={'dont_redirect': True, 'handle_httpstatus_list': [302]},
         #                      dont_filter=False)
 
-        for option_item in all_options:
-            headers = common_headers.copy()
-            headers['Referer'] = option_item['Referer']
-            formdata = option_item['formdata']
-            callback_options = {
-                'headers': headers,
-                'formdata': formdata,
-                'cookies': common_cookies
-            }
-            yield scrapy.FormRequest(url=self.start_url, method='POST', headers=headers, cookies=common_cookies,
-                                     formdata=formdata,
-                                     callback=self.parse,
-                                     meta={'callback_options': callback_options, 'dont_redirect': True,
-                                           'handle_httpstatus_list': [302]}, dont_filter=True)
+        if 'p_LoginUser' in res_txt:
+            for option_item in all_options:
+                headers = common_headers.copy()
+                headers['Referer'] = option_item['Referer']
+                formdata = option_item['formdata']
+                callback_options = {
+                    'headers': headers,
+                    'formdata': formdata,
+                    'cookies': common_cookies
+                }
+                yield scrapy.FormRequest(url=self.start_url, method='POST', headers=headers, cookies=common_cookies,
+                                         formdata=formdata,
+                                         callback=self.parse,
+                                         meta={'callback_options': callback_options, 'dont_redirect': True,
+                                               'handle_httpstatus_list': [302]}, dont_filter=True)
 
     # 如果是简写初始url，此方法名必须为：parse
     def parse(self, response):
@@ -417,11 +419,14 @@ class ChlLaw(scrapy.Spider):
         #     yield ret
 
     def repeat_login(self, response):
-        logger.info('############repeat_logout_after: ' + str(
-            response.body.decode('gbk') if response.body else response.body) + '###############')
-        yield scrapy.Request(url=self.login_url + '&_=' + str(uuid.uuid4()), headers=login_logout_headers, cookies=common_cookies,
-                             callback=self.repeat_login_after)
+        res_txt = str(response.body.decode('gbk') if response.body else response.body)
+        logger.info('############repeat_logout_after: ' + res_txt + '###############')
+        if 'dispLogin' in res_txt:
+            yield scrapy.Request(url=self.login_url + '&_=' + str(uuid.uuid4()), headers=login_logout_headers, cookies=common_cookies,
+                                 callback=self.repeat_login_after)
 
     def repeat_login_after(self, response):
-        logger.info('############repeat_login_after: ' + str(
-            response.body.decode('gbk') if response.body else response.body) + '###############')
+        res_txt = str(response.body.decode('gbk') if response.body else response.body)
+        logger.info('############repeat_login_after: ' + res_txt + '###############')
+        if 'p_LoginUser' in res_txt:
+            yield self.login_after(response)
