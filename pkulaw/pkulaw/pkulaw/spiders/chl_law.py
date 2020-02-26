@@ -375,7 +375,10 @@ class ChlLaw(scrapy.Spider):
         if u'还不是用户？' in main_content:
             # raise DropItem('main_content is not login!')
             logger.info('############main_content is not login!###############')
-            yield self.repeat_logout_login()
+            logger.info('############repeat_logout_login!###############')
+            yield scrapy.Request(url=self.logout_url + '&_=' + str(uuid.uuid4()), headers=login_logout_headers,
+                                 cookies=common_cookies,
+                                 callback=self.repeat_login)
 
         ret['content'] = main_content.strip() if main_content else main_content
         yield ret
@@ -394,11 +397,6 @@ class ChlLaw(scrapy.Spider):
         #         u'部门工作文件' not in tmp_force_level and
         #         u'行政许可批复' not in tmp_force_level):
         #     yield ret
-
-    def repeat_logout_login(self):
-        logger.info('############repeat_logout_login!###############')
-        yield scrapy.Request(url=self.logout_url + '&_=' + str(uuid.uuid4()), headers=login_logout_headers, cookies=common_cookies,
-                             callback=self.repeat_login)
 
     def repeat_login(self, response):
         logger.info('############repeat_logout_after: ' + str(
