@@ -46,7 +46,7 @@ class Handler(BaseHandler):
     @config(priority=2)
     def detail_page(self, response):
         dinfor_list = response.doc('.d_infor > tr > td').items()
-        i = 1
+        i = 0
         for dinfor in dinfor_list:
             if i == 1:
                 pub_dept = dinfor.text()
@@ -63,7 +63,7 @@ class Handler(BaseHandler):
         ret = {
             "url": response.url,
             "title": response.doc('.conTit').text(),
-            "pub_date": pub_dept,
+            "pub_dept": pub_dept,
             "content": response.doc('.con').html().strip(),
             "remark": 'http://search.chinalaw.gov.cn',
             "pub_date": pub_date,
