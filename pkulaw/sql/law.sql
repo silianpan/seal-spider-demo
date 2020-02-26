@@ -5,13 +5,13 @@
  Source Server Type    : MySQL
  Source Server Version : 80013
  Source Host           : localhost:3306
- Source Schema         : pkulaw
+ Source Schema         : pkulaw_new
 
  Target Server Type    : MySQL
  Target Server Version : 80013
  File Encoding         : 65001
 
- Date: 24/02/2020 09:31:08
+ Date: 26/02/2020 17:14:25
 */
 
 SET NAMES utf8mb4;
@@ -40,6 +40,7 @@ CREATE TABLE `law` (
   `crt_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `upd_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `del_flag` bit(1) DEFAULT b'0' COMMENT '删除标志',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`title`,`url`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='中央法规';
 
