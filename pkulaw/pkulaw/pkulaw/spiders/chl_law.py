@@ -14,11 +14,11 @@
 import datetime
 import logging
 import re
+import requests
 import uuid
 
 import scrapy
 from pkulaw.items import PkulawItem
-from scrapy.exceptions import DropItem
 
 logger = logging.getLogger(__name__)
 
@@ -253,10 +253,26 @@ class ChlLaw(scrapy.Spider):
         spider._set_crawler(crawler)
         return spider
 
+    def requests_logout_login(self):
+        # requests模块实现
+        jar = requests.cookies.RequestsCookieJar()
+        for key, value in common_cookies.items():
+            jar.set(key, value)
+        # 注销
+        ret_logout = requests.get(self.logout_url, headers=login_logout_headers, cookies=jar)
+        logger.info('############requests_logout: ' + str(ret_logout.text) + '###############')
+        # 登陆
+        ret_login = requests.get(self.login_url, headers=login_logout_headers, cookies=jar)
+        logger.info('############requests_login: ' + str(ret_login.text) + '###############')
+
     # 另外一种初始链接写法
     def start_requests(self):
         # 注销用户请求
         yield scrapy.Request(url=self.logout_url + '&_=' + str(uuid.uuid4()), headers=login_logout_headers, cookies=common_cookies, callback=self.logout_after)
+
+        # requests模块实现不得行，不在一个session中
+        # self.requests_logout_login()
+        # yield self.login_after()
 
     def logout_after(self, response):
         logger.info('############logout_after: ' + str(
@@ -267,6 +283,7 @@ class ChlLaw(scrapy.Spider):
     def login_after(self, response):
         logger.info('############login_after: ' + str(
             response.body.decode('gbk') if response.body else response.body) + '###############')
+
         # for test
         # print(response.body.decode('gbk'))
         # test_href = 'http://www.pkulaw.cn/fulltext_form.aspx?Db=chl&Gid=32b8ec09754aab05bdfb&keyword=&EncodingName=&Search_Mode=&Search_IsTitle=0'
@@ -379,6 +396,7 @@ class ChlLaw(scrapy.Spider):
             yield scrapy.Request(url=self.logout_url + '&_=' + str(uuid.uuid4()), headers=login_logout_headers,
                                  cookies=common_cookies,
                                  callback=self.repeat_login)
+            # self.requests_logout_login()
 
         ret['content'] = main_content.strip() if main_content else main_content
         yield ret
