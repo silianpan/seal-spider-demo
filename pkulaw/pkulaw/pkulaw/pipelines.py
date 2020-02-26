@@ -43,6 +43,20 @@ class PkulawPipeline(object):
     def process_item(self, ret, spider):
         if not ret.get('content', False):
             raise DropItem('content is None!')
+        # 更新content内容不完整的情况
+        if u'还不是用户？' not in ret.get('content', ''):
+            select_sql = """
+                select t.title from law t where t.title = %s and t.url = %s and t.content like %s
+            """
+            self.cursor.execute(select_sql, (ret.get('title', ''), ret.get('url', ''), u'%还不是用户？%'))
+            if self.cursor.rowcount == 1:
+                # 更新content内容，更新后直接返回，不再插入
+                update_sql = """
+                    UPDATE law SET content = %s WHERE title = %s and url = %s
+                """
+                self.cursor.execute(update_sql, (ret.get('content', ''), ret.get('title', ''), ret.get('url', '')))
+                self.conn.commit()
+                return ret
         # sql语句
         insert_sql = """
         INSERT INTO law(title, pub_dept, pub_no, pub_date, law_type, force_level, time_valid, impl_date, content, url, type, deadline, appr_dept, appr_date) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
