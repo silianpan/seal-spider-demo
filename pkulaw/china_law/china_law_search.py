@@ -32,10 +32,11 @@ class Handler(BaseHandler):
     def index_page(self, response):
         next_item_all = response.doc('.pagebar > a').items()
         for next_item in next_item_all:
-            next_page = next_item.attr('href')
             next_txt = next_item.text()
             if next_txt == u'下一页':
-                self.crawl(next_page, callback=self.index_page)
+                next_num = next_item.attr('page')
+                next_url = 'http://search.chinalaw.gov.cn/AdvanceSearchResult?SiteID=124&PageIndex=' + str(next_num) + '&c1=1900-01-01&c2=3000-01-01&c3=&c4=&title=&Query='
+                self.crawl(next_url, callback=self.index_page)
 
         item_list = response.doc('.w_lt > a').items()
         for item in item_list:
