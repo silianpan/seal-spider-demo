@@ -58,15 +58,17 @@ class Handler(BaseHandler):
 
     @config(priority=2)
     def detail_page(self, response):
-        ret = {
-            "url": response.url,
-            "title": response.save.get('title', ''),
-            "pub_date": response.save.get('pub_date', ''),
-            "content": response.doc('#content > span').html().strip(),
-            "remark": 'http://www.chinalaw.gov.cn'
-        }
-        self.save_to_mysql(ret)
-        return ret
+        content = response.doc('#content > span').html()
+        if content:
+            ret = {
+                "url": response.url,
+                "title": response.save.get('title', ''),
+                "pub_date": response.save.get('pub_date', ''),
+                "content": content.strip(),
+                "remark": 'http://www.chinalaw.gov.cn'
+            }
+            self.save_to_mysql(ret)
+            return ret
 
     # 保存到mysql
     def save_to_mysql(self, ret):
