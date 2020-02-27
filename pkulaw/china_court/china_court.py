@@ -43,6 +43,13 @@ class Handler(BaseHandler):
             news_href = news('.left > a').attr('href')
             pub_date = news('.right').text()
             self.crawl(news_href, callback=self.detail_page, save={'pub_date': pub_date})
+        # 下一页
+        next_list = response.doc('.paginationControl > a').items()
+        for next_page in next_list:
+            if u'下一页' == next_page.text():
+                next_href = next_page.attr('href')
+                self.crawl(next_href, callback=self.item_page)
+                break
 
     @config(priority=2)
     def detail_page(self, response):
