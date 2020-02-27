@@ -52,25 +52,28 @@ class Handler(BaseHandler):
             self.crawl(next_href, callback=self.item_page)
 
     # 递归获取全部文章内容
-    def all_next_content(self, first_doc, all_content=''):
-        next_page = first_doc('#autopage > a:last-child')
+    def all_next_content(self, first_doc, all_content=[]):
+        next_page = first_doc('#autopage > center > a:last-child')
         if (not next_page) or (u'下一页' != next_page.text()):
             return all_content
         next_href = next_page.attr('href')
         ret = requests.get(next_href)
+        ret.encoding = 'utf-8'
+        print(ret.status_code)
         doc = pq(ret.text)
         con = doc('#fontzoom').html().strip()
-        all_content += con
+        all_content.append(con.decode('utf8'))
         self.all_next_content(doc, all_content)
 
     @config(priority=2)
     def detail_page(self, response):
         content = response.doc('#fontzoom').html().strip()
-        all_content = self.all_next_content(response.doc, content)
+        all_content = [content]
+        self.all_next_content(response.doc('body'), all_content)
         ret = {
             "url": response.url,
             "title": response.save.get('title', ''),
-            "content": all_content,
+            "content": ''.join(all_content),
             "remark": 'http://www.china.com.cn/law/flfg/node_7001451.htm'
         }
         self.save_to_mysql(ret)
