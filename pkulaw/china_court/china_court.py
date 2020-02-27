@@ -103,4 +103,3 @@ class Handler(BaseHandler):
             self.conn.commit()
         except pymysql.err.IntegrityError:
             print('Repeat Key')
-
