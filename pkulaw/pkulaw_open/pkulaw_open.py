@@ -89,15 +89,15 @@ class Handler(BaseHandler):
 
     @config(age=10 * 24 * 60 * 60)
     def index_page(self, response):
-        item_list = response.doc('.contentList > dd > a')
+        item_list = response.doc('.contentList > dd > a').items()
         for item in item_list:
             detail_href = item.attr('href')
             self.crawl(detail_href, callback=self.detail_page)
 
         form_data = response.save.get('form_data', False)
         if form_data:
-            pagenumber = int(response.doc('.qp_pagenumber').text())
-            totalnumber = int(response.doc('.qp_totalnumber').text())
+            pagenumber = int(response.doc('#spanPagerMessage .qp_pagenumber').text())
+            totalnumber = int(response.doc('#spanPagerMessage .qp_totalnumber').text())
             if pagenumber < totalnumber:
                 next_form_data = form_data.copy()
                 next_form_data['Pager.PageSize'] = 100
@@ -108,16 +108,16 @@ class Handler(BaseHandler):
 
     @config(priority=2)
     def detail_page(self, response):
-        title = response.doc('title').text()
+        title = response.doc('.article > h3').text()
         if not title:
-            title = response.doc('.article > h3').text()
+            title = response.doc('title').text()
         ret = {
             "url": response.url,
             "title": title,
             "content": response.doc('.articleText').html().strip(),
             "remark": 'http://open.pkulaw.cn'
         }
-        li_list = response.doc('.articleInfo > li')
+        li_list = response.doc('.articleInfo > li').items()
         for li in li_list:
             strong = li('strong').text()
             if u'法规类别' in strong:
