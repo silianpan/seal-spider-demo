@@ -85,7 +85,7 @@ class Handler(BaseHandler):
     @every(minutes=24 * 60)
     def on_start(self):
         for form_data in all_form_data:
-            self.crawl(start_url, method='POST', headers=common_headers, data=form_data, callback=self.index_page)
+            self.crawl(start_url, method='POST', headers=common_headers, data=form_data, callback=self.index_page, save={'form_data': form_data})
 
     @config(age=10 * 24 * 60 * 60)
     def index_page(self, response):
@@ -93,6 +93,18 @@ class Handler(BaseHandler):
         for item in item_list:
             detail_href = item.attr('href')
             self.crawl(detail_href, callback=self.detail_page)
+
+        form_data = response.save.get('form_data', False)
+        if form_data:
+            pagenumber = int(response.doc('.qp_pagenumber').text())
+            totalnumber = int(response.doc('.qp_totalnumber').text())
+            if pagenumber < totalnumber:
+                next_form_data = form_data.copy()
+                next_form_data['Pager.PageSize'] = 100
+                next_form_data['Pager.PageIndex'] = pagenumber - 1
+                self.crawl(start_url, method='POST', headers=common_headers, data=next_form_data, callback=self.index_page,
+                           save={'form_data': next_form_data})
+
 
     @config(priority=2)
     def detail_page(self, response):
