@@ -101,7 +101,7 @@ class Handler(BaseHandler):
             if pagenumber < totalnumber:
                 next_form_data = form_data.copy()
                 next_form_data['Pager.PageSize'] = 100
-                next_form_data['Pager.PageIndex'] = pagenumber - 1
+                next_form_data['Pager.PageIndex'] = pagenumber
                 self.crawl(start_url, method='POST', headers=common_headers, data=next_form_data, callback=self.index_page,
                            save={'form_data': next_form_data})
 
