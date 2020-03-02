@@ -58,11 +58,13 @@ class Handler(BaseHandler):
         if not title:
             title = response.doc('.content_text > div,p[style="text-align: center;"]:lt(4) > strong').text()
         if not title:
-            title = response.doc('.content_text > p[style="text-align:center;"]:lt(3) > strong').text()
+            title = response.doc('.content_text > p[style="text-align:center;"]:lt(4) > strong').text()
         if not title:
-            title = response.doc('.content_text > p[style="text-align: center;"]:lt(3) > strong').text()
+            title = response.doc('.content_text > p[style="text-align: center;"]:lt(4) > strong').text()
         if not title:
             title = response.doc('.content_text > p:lt(3) > span > strong').text()
+        if not title:
+            title = response.doc('.content_text > p:lt(3) > strong').text()
         if not title:
             title = response.doc('.MTitle').text()
         if not title:
