@@ -9,6 +9,7 @@
 import requests
 import pymysql
 
+from fake_useragent import UserAgent
 from pyquery import PyQuery as pq
 from pyspider.libs.base_handler import *
 
@@ -28,7 +29,7 @@ class Handler(BaseHandler):
 
     @every(minutes=24 * 60)
     def on_start(self):
-        self.crawl(start_url, callback=self.index_page)
+        self.crawl(start_url, user_agent=UserAgent().random, callback=self.index_page)
 
     @config(age=10 * 24 * 60 * 60)
     def index_page(self, response):
@@ -37,19 +38,19 @@ class Handler(BaseHandler):
             menu_text = menu_title.text()
             menu_href = menu_title.attr('href')
             if u'更多>>' == menu_text and 'node_7001457.htm' not in menu_href:
-                self.crawl(menu_href, callback=self.item_page)
+                self.crawl(menu_href, user_agent=UserAgent().random, callback=self.item_page)
 
     def item_page(self, response):
         news_list = response.doc('.unnamed6').items()
         for news in news_list:
             news_href = news.attr('href')
             news_title = news.text()
-            self.crawl(news_href, callback=self.detail_page, save={'title': news_title})
+            self.crawl(news_href, user_agent=UserAgent().random, callback=self.detail_page, save={'title': news_title})
         # 下一页
         next_list = response.doc('#autopage > center > a').items()
         for next_page in next_list:
             next_href = next_page.attr('href')
-            self.crawl(next_href, callback=self.item_page)
+            self.crawl(next_href, user_agent=UserAgent().random, callback=self.item_page)
 
     # 递归获取全部文章内容
     def all_next_content(self, next_href, all_content=[]):

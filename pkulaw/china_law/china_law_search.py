@@ -8,6 +8,7 @@
 
 import pymysql
 
+from fake_useragent import UserAgent
 from pyspider.libs.base_handler import *
 
 start_url = 'http://search.chinalaw.gov.cn/AdvanceSearchResult?SiteID=124&PageIndex=&c1=1900-01-01&c2=3000-01-01&c3=&c4=&title=&Query='
@@ -26,7 +27,7 @@ class Handler(BaseHandler):
 
     @every(minutes=24 * 60)
     def on_start(self):
-        self.crawl(start_url, callback=self.index_page)
+        self.crawl(start_url, user_agent=UserAgent().random, callback=self.index_page)
 
     @config(age=10 * 24 * 60 * 60)
     def index_page(self, response):
@@ -36,12 +37,12 @@ class Handler(BaseHandler):
             if next_txt == u'下一页':
                 next_num = next_item.attr('page')
                 next_url = 'http://search.chinalaw.gov.cn/AdvanceSearchResult?SiteID=124&PageIndex=' + str(next_num) + '&c1=1900-01-01&c2=3000-01-01&c3=&c4=&title=&Query='
-                self.crawl(next_url, callback=self.index_page)
+                self.crawl(next_url, user_agent=UserAgent().random, callback=self.index_page)
 
         item_list = response.doc('.w_lt > a').items()
         for item in item_list:
             item_href = item.attr('href')
-            self.crawl(item_href, callback=self.detail_page)
+            self.crawl(item_href, user_agent=UserAgent().random, callback=self.detail_page)
 
     @config(priority=2)
     def detail_page(self, response):

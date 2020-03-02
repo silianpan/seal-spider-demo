@@ -8,6 +8,7 @@
 
 import pymysql
 
+from fake_useragent import UserAgent
 from pyspider.libs.base_handler import *
 
 start_url = 'https://www.chinacourt.org/law.shtml'
@@ -26,7 +27,7 @@ class Handler(BaseHandler):
 
     @every(minutes=24 * 60)
     def on_start(self):
-        self.crawl(start_url, callback=self.index_page)
+        self.crawl(start_url, user_agent=UserAgent().random, callback=self.index_page)
 
     @config(age=10 * 24 * 60 * 60)
     def index_page(self, response):
@@ -35,27 +36,27 @@ class Handler(BaseHandler):
             menu_text = menu_title.text()
             menu_href = menu_title.attr('href')
             if u'中外条约' != menu_text and u'立法追踪' != menu_text:
-                self.crawl(menu_href, callback=self.item_page)
+                self.crawl(menu_href, user_agent=UserAgent().random, callback=self.item_page)
 
     def item_page(self, response):
         news_list = response.doc('.law_list > ul > li').items()
         for news in news_list:
             news_href = news('.left > a').attr('href')
             pub_date = news('.right').text()
-            self.crawl(news_href, callback=self.detail_page, save={'pub_date': pub_date})
+            self.crawl(news_href, user_agent=UserAgent().random, callback=self.detail_page, save={'pub_date': pub_date})
         # 下一页
         next_list = response.doc('.paginationControl > a').items()
         for next_page in next_list:
             if u'下一页' == next_page.text():
                 next_href = next_page.attr('href')
-                self.crawl(next_href, callback=self.item_page)
+                self.crawl(next_href, user_agent=UserAgent().random, callback=self.item_page)
                 break
 
     @config(priority=2)
     def detail_page(self, response):
         title = response.doc('.content_text > div,p[style="text-align:center;"]:lt(4) > strong').text()
         if not title:
-            title = response.doc('.content_text > div,p[style="text-align: center;"]:lt(3) > strong').text()
+            title = response.doc('.content_text > div,p[style="text-align: center;"]:lt(4) > strong').text()
         if not title:
             title = response.doc('.content_text > p[style="text-align:center;"]:lt(3) > strong').text()
         if not title:
@@ -68,6 +69,10 @@ class Handler(BaseHandler):
             title = response.doc('.content_text > div,p[style="text-align:center;"]:lt(4)').text()
         if not title:
             title = response.doc('.content_text > p[align="center"] > strong').text()
+        if not title:
+            title = response.doc('.MsoPlainText > strong > span').text()
+        if len(title) > 255:
+            title = title[:255]
         content = response.doc('.content_text').html().strip()
         ret = {
             "url": response.url,
