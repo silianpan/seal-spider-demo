@@ -95,7 +95,8 @@ class Handler(BaseHandler):
                         ret['law_type'] = ret_item_list[1].strip()
                     elif u'所属类别' in ret_item_list[0]:
                         ret['law_type'] = ret_item_list[1].strip()
-        self.save_to_mysql(ret)
+        if title and content:
+            self.save_to_mysql(ret)
         return ret
 
     # 保存到mysql
