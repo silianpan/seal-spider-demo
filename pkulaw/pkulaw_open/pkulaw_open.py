@@ -9,6 +9,7 @@
 import json
 import pymysql
 
+from fake_useragent import UserAgent
 from pyspider.libs.base_handler import *
 
 start_url = 'http://open.pkulaw.cn/Search/Record'
@@ -22,7 +23,7 @@ common_headers = {
     'Host': 'open.pkulaw.cn',
     'Origin': 'http://open.pkulaw.cn',
     'Referer': 'http://open.pkulaw.cn/',
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:73.0) Gecko/20100101 Firefox/73.0',
+    'User-Agent': UserAgent().random,
     'X-Requested-With': 'XMLHttpRequest'
 }
 
@@ -85,14 +86,14 @@ class Handler(BaseHandler):
     @every(minutes=24 * 60)
     def on_start(self):
         for form_data in all_form_data:
-            self.crawl(start_url, method='POST', headers=common_headers, data=form_data, callback=self.index_page, save={'form_data': form_data})
+            self.crawl(start_url, method='POST', headers=common_headers, data=form_data, user_agent=UserAgent().random, callback=self.index_page, save={'form_data': form_data})
 
     @config(age=10 * 24 * 60 * 60)
     def index_page(self, response):
         item_list = response.doc('.contentList > dd > a').items()
         for item in item_list:
             detail_href = item.attr('href')
-            self.crawl(detail_href, callback=self.detail_page)
+            self.crawl(detail_href, user_agent=UserAgent().random, callback=self.detail_page)
 
         form_data = response.save.get('form_data', False)
         if form_data:
@@ -102,7 +103,7 @@ class Handler(BaseHandler):
                 next_form_data = form_data.copy()
                 next_form_data['Pager.PageSize'] = 100
                 next_form_data['Pager.PageIndex'] = pagenumber
-                self.crawl(start_url, method='POST', headers=common_headers, data=next_form_data, callback=self.index_page,
+                self.crawl(start_url, method='POST', headers=common_headers, data=next_form_data, user_agent=UserAgent().random, callback=self.index_page,
                            save={'form_data': next_form_data})
 
 
