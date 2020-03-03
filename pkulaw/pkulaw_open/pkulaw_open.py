@@ -7,10 +7,10 @@
 # @Software: PyCharm
 
 import json
-import pymysql
 
 from fake_useragent import UserAgent
 from pyspider.libs.base_handler import *
+from pyspider.database.mysql.mysql_util import MysqlUtil
 
 start_url = 'http://open.pkulaw.cn/Search/Record'
 
@@ -73,13 +73,6 @@ class Handler(BaseHandler):
     crawl_config = {
     }
 
-    def __init__(self):
-        self.conn = pymysql.connect(host='localhost', user='root', password='Asdf@123', port=3306, db='pkulaw_other')
-        self.cursor = self.conn.cursor()
-
-    def __del__(self):
-        self.conn.close()
-
     def get_taskid(self, task):
         return md5string(task['url']) + json.dumps(task['fetch'].get('data', ''))
 
@@ -138,23 +131,9 @@ class Handler(BaseHandler):
             elif u'效力级别' in strong:
                 ret['force_level'] = li('a').text()
 
-        self.save_to_mysql(ret)
         return ret
 
-    # 保存到mysql
-    def save_to_mysql(self, ret):
-        insert_sql = """
-        INSERT INTO law(title, pub_dept, pub_no, pub_date, law_type, force_level, time_valid, impl_date, content, url, type, deadline, appr_dept, appr_date, remark) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
-        try:
-            self.cursor.execute(insert_sql, (
-                ret.get('title', ''), ret.get('pub_dept', ''), ret.get('pub_no', ''), ret.get('pub_date', ''),
-                ret.get('law_type', ''), ret.get('force_level', ''),
-                ret.get('time_valid', ''), ret.get('impl_date', ''), ret.get('content', ''), ret.get('url', ''),
-                ret.get('type', ''), ret.get('deadline', ''),
-                ret.get('appr_dept', ''),
-                ret.get('appr_date', ''),
-                ret.get('remark', '')))
-            self.conn.commit()
-        except pymysql.err.IntegrityError:
-            print('Repeat Key')
+    def on_result(self, result):
+        if result and result['title'] and result['content']:
+            sql = MysqlUtil()
+            sql.insert('law', **result)
