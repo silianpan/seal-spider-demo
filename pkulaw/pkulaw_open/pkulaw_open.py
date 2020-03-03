@@ -102,6 +102,8 @@ class Handler(BaseHandler):
 
     @config(priority=2)
     def detail_page(self, response):
+        if response.status_code == 500:
+            return
         title = response.doc('.article > h3').text()
         if not title:
             title = response.doc('title').text()
