@@ -24,6 +24,7 @@ fake-useragent = "*"
 scrapy-redis = "*"
 scrapy-redis-bloomfilter = "*"
 scrapyd = "*"
+openpyxl = "*"
 
 [requires]
 python_version = "3.7"
