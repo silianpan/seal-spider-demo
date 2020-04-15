@@ -17,7 +17,7 @@ class MysqlUtil:
     def __init__(self):
         self.is_connected = False
         try:
-            self.conn = pymysql.connect(host='localhost', user='root', password='lxy1314', port=3306,
+            self.conn = pymysql.connect(host='47.98.203.232', user='root', password='lxy1314', port=3306,
                                         db='bss_pro')
             self.cursor = self.conn.cursor()
             self.is_connected = True
