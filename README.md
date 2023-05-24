@@ -1,4 +1,4 @@
-# 《Python3网络爬虫开发实战》代码
+# 网络爬虫
 
 * appium：微信朋友圈爬虫
 * beautifulsoup：BeautifulSoup操作
